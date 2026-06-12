@@ -1,4 +1,4 @@
-# 🏭 NMDC Employee Management System
+# 🏭 NMDC HR Analytics
 
 <p align="center">
   <img src="NMDC LOGO.jpg" alt="NMDC Logo" width="180"/>
@@ -15,7 +15,7 @@
 
 ## 📌 Overview
 
-The **NMDC Employee Management System** is a full-stack web application built for **National Mineral Development Corporation (NMDC)**. It provides a streamlined interface for managing employee records, grade-wise department summaries, and secure role-based login.
+The **NMDC HR Analytics** is a full-stack web application built for **National Mineral Development Corporation (NMDC)**. It provides a streamlined interface for managing employee records, grade-wise department summaries, retirement reports and secure role-based login.
 
 ---
 
