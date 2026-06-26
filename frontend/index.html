@@ -8810,18 +8810,21 @@
       });
 
       // ── ENTER KEY + SEND BUTTON ──
-      // Use keyup so it fires after the character is fully registered,
-      // and avoid any preventDefault conflicts from parent keydown handlers.
-      chatInput.addEventListener('keyup', (e) => {
-        if (e.key === 'Enter') {
-          const query = chatInput.value.trim();
-          if (query) submitMessage(query);
+      // Focus launcher and press Enter or Space to open/close
+      launcher.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13 || e.keyCode === 32) {
+          e.preventDefault();
+          launcher.click();
         }
       });
-      // Also keep keydown for immediate feel, but only clear on keyup
+
+      // Press Enter in chatInput to submit prompt immediately
       chatInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.stopPropagation(); // prevent global Escape/key handlers from interfering
+        if ((e.key === 'Enter' || e.keyCode === 13) && !e.shiftKey) {
+          e.preventDefault();
+          e.stopPropagation();
+          const query = chatInput.value.trim();
+          if (query) submitMessage(query);
         }
       });
 
