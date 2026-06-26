@@ -43,3 +43,7 @@ Desktop.ini
 *.tmp
 *.bak
 test_output/
+
+# Data files
+*.xlsx
+*.xls
