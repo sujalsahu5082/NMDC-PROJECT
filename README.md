@@ -91,8 +91,6 @@ start-all.bat        # Windows
 
 ## 📸 Screenshots
 
----
-
 <img width="1279" height="617" alt="Screenshot 2026-06-16 151122" src="https://github.com/user-attachments/assets/6fa83185-5f2d-4e4d-9dcd-546914f3bbec" />
 <img width="1279" height="617" alt="Screenshot 2026-06-16 150048" src="https://github.com/user-attachments/assets/f1513bf8-dff9-41e9-ad2e-9e74eb155158" />
 <img width="2560" height="1229" alt="Screenshot (189)" src="https://github.com/user-attachments/assets/9b544bbd-3acf-4d1a-a8d7-e76c2e661aae" />
