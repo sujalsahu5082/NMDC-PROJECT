@@ -54,7 +54,8 @@ class AIChatAgent:
                 "skills_summary": data_summary.get("skills", [])[:7],
                 "active_filters": {
                     "sidebar_counts": data_summary.get("sidebar", {})
-                }
+                },
+                "retirement_summary": data_summary.get("retirement_summary", {})
             }
         }
         
@@ -68,6 +69,7 @@ class AIChatAgent:
             "2. Keep your answers concise, clear, and professional.\n"
             "3. Use Markdown tables, lists, and bold text to present numbers cleanly.\n"
             "4. If the user asks general HR questions, keep it relevant to NMDC or explain that your focus is on the uploaded roster data.\n"
+            "5. If the user asks about the retirement report or succession planning, refer to the retirement_summary data in the context.\n"
         )
         
         payload = {
@@ -249,6 +251,27 @@ class AIChatAgent:
                 f"- **Production Division**: {sidebar.get('prod_all', 0)} employees\n"
                 f"- **Non-Production Division**: {sidebar.get('np_all', 0)} employees\n"
                 f"- **Others/Support**: {sidebar.get('oth_all', 0)} employees\n"
+            )
+
+        # 7.5 Retirement specific
+        if any(w in query for w in ["retire", "retirement", "pension", "superannuation", "dor", "dob"]):
+            ret_sum = data_summary.get("retirement_summary", {})
+            stats = ret_sum.get("stats", {})
+            peak = ret_sum.get("peak_year", {})
+            
+            if not stats:
+                return "No retirement summary data is available under the current active filters."
+                
+            return (
+                f"### ⏳ Retirement & Succession Planning Summary\n"
+                f"Based on the active filtered roster of **{total}** employees:\n\n"
+                f"- **Already Retired**: **{stats.get('already_retired', 0)}** employees (past retirement date).\n"
+                f"- **Active Workforce**: **{stats.get('active_employees', 0)}** active employees.\n"
+                f"- **Retiring Soon (This/Next Month)**: **{stats.get('retiring_this_month', 0)}** this month, **{stats.get('retiring_next_month', 0)}** next month.\n"
+                f"- **Short-term Loss (1 Year)**: **{stats.get('retiring_within_1y', 0)}** employees retiring within 1 year.\n"
+                f"- **Medium-term Loss (5 Years)**: **{stats.get('retiring_within_5y', 0)}** employees retiring within 5 years.\n"
+                f"- **Long-term Loss (10 Years)**: **{stats.get('retiring_within_10y', 0)}** employees retiring within 10 years.\n"
+                f"- **Peak Retirement Year**: Calendar Year **{peak.get('year', '—')}** with **{peak.get('count', 0)}** retirements.\n"
             )
 
         # 8. Help / Fallback fallback

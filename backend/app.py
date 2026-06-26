@@ -650,6 +650,9 @@ def autoload_excel():
             '_file':       f.filename,
             # Extra columns from NMDC file
             'emp_no':      safe_str(row.get(col_map.get('emp_no',''), '')) if col_map.get('emp_no') in available else '',
+            'sap_no':      safe_str(row.get(col_map.get('sap_no',''), '')) if col_map.get('sap_no') in available else '',
+            'dob':         safe_str(row.get(col_map.get('dob',''), '')).split(' ')[0] if col_map.get('dob') in available else '',
+            'dor':         safe_str(row.get(col_map.get('dor',''), '')).split(' ')[0] if col_map.get('dor') in available else '',
             'section':     safe_str(row.get(col_map.get('section',''), '')) if col_map.get('section') in available else '',
             'qualification': safe_str(row.get(col_map.get('qualification',''), '')) if col_map.get('qualification') in available else '',
         })
@@ -795,6 +798,23 @@ def process_file():
     if missing_cols:
         return jsonify({'error': 'Mapping refers to unknown columns: ' + ', '.join(missing_cols)}), 400
 
+    # Auto-detect unmapped columns
+    def find_header_match(key):
+        target = NMDC_EXCEL_COLUMN_MAP.get(key)
+        if target in headers:
+            return target
+        for h in headers:
+            if h.strip().lower() == target.strip().lower():
+                return h
+        return None
+
+    dob_col = mapping.get('dob') or find_header_match('dob')
+    dor_col = mapping.get('dor') or find_header_match('dor')
+    emp_no_col = mapping.get('emp_no') or find_header_match('emp_no')
+    sap_no_col = mapping.get('sap_no') or find_header_match('sap_no')
+    section_col = mapping.get('section') or find_header_match('section')
+    qualification_col = mapping.get('qualification') or find_header_match('qualification')
+
     records = []
     for row in rows:
         dept_raw = row.get(dept_col, '')
@@ -808,6 +828,8 @@ def process_file():
             return safe_str(row.get(col_name, ''))
 
         skills_raw = get_val(mapping.get('skills'))
+        dob_raw = get_val(dob_col)
+        dor_raw = get_val(dor_col)
         records.append({
             'name':        get_val(mapping.get('name')),
             'department':  dept,
@@ -819,6 +841,12 @@ def process_file():
             'skills_list': parse_skills(skills_raw),
             'category':    get_category(dept),
             '_file':       file_name,
+            'emp_no':      get_val(emp_no_col),
+            'sap_no':      get_val(sap_no_col),
+            'dob':         dob_raw.split(' ')[0] if dob_raw else '',
+            'dor':         dor_raw.split(' ')[0] if dor_raw else '',
+            'section':     get_val(section_col),
+            'qualification': get_val(qualification_col),
         })
 
     MASTER_DATA.extend(records)
@@ -858,6 +886,133 @@ def analytics():
     if cat_filter != 'All':
         df = [r for r in df if r.get('category') == cat_filter]
     df = apply_dept_filter(df, dept_filter)
+
+    # ── Retirement Statistics Calculation ──────────────────────────────────────
+    from datetime import date, datetime
+    import calendar
+    
+    # Baseline today to 2026-06-26 to match data timeframe, but default to current date if later
+    today_date = date.today()
+    if today_date < date(2026, 6, 26):
+        today_date = date(2026, 6, 26)
+        
+    def calculate_retirement_date(dob_str):
+        if not dob_str:
+            return None
+        try:
+            d_str = dob_str.split(' ')[0]
+            dob_dt = datetime.strptime(d_str, "%Y-%m-%d").date()
+        except:
+            try:
+                dob_dt = pd.to_datetime(dob_str).date()
+            except:
+                return None
+        try:
+            b60 = dob_dt.replace(year=dob_dt.year + 60)
+        except ValueError:
+            b60 = dob_dt.replace(year=dob_dt.year + 60, day=28)
+        if b60.day == 1:
+            if b60.month == 1:
+                return date(b60.year - 1, 12, 31)
+            else:
+                last_day = calendar.monthrange(b60.year, b60.month - 1)[1]
+                return date(b60.year, b60.month - 1, last_day)
+        else:
+            last_day = calendar.monthrange(b60.year, b60.month)[1]
+            return date(b60.year, b60.month, last_day)
+
+    def add_months(d, m):
+        month = d.month - 1 + m
+        year = d.year + month // 12
+        month = month % 12 + 1
+        day = min(d.day, calendar.monthrange(year, month)[1])
+        return date(year, month, day)
+
+    date_3m = add_months(today_date, 3)
+    date_1y = add_months(today_date, 12)
+    date_5y = add_months(today_date, 60)
+    date_10y = add_months(today_date, 120)
+    
+    next_month_year = today_date.year + (today_date.month // 12)
+    next_month_val = (today_date.month % 12) + 1
+    
+    retired_cnt = 0
+    active_cnt = 0
+    ret_this_month = 0
+    ret_next_month = 0
+    ret_3m = 0
+    ret_1y = 0
+    ret_5y = 0
+    ret_10y = 0
+    
+    by_year = defaultdict(int)
+    by_dept = defaultdict(int)
+    by_desig = defaultdict(int)
+    
+    for r in df:
+        dor_str = r.get('dor')
+        dor_date = None
+        if dor_str:
+            try:
+                dor_date = datetime.strptime(dor_str.split(' ')[0], "%Y-%m-%d").date()
+            except:
+                pass
+        if not dor_date:
+            dob_str = r.get('dob')
+            if dob_str:
+                dor_date = calculate_retirement_date(dob_str)
+                
+        if not dor_date:
+            continue
+            
+        if dor_date < today_date:
+            retired_cnt += 1
+        else:
+            active_cnt += 1
+            by_year[dor_date.year] += 1
+            
+            if dor_date.year == today_date.year and dor_date.month == today_date.month:
+                ret_this_month += 1
+            if dor_date.year == next_month_year and dor_date.month == next_month_val:
+                ret_next_month += 1
+            if today_date <= dor_date <= date_3m:
+                ret_3m += 1
+            if today_date <= dor_date <= date_1y:
+                ret_1y += 1
+            if today_date <= dor_date <= date_5y:
+                ret_5y += 1
+                by_dept[r.get('department')] += 1
+                by_desig[r.get('designation')] += 1
+            if today_date <= dor_date <= date_10y:
+                ret_10y += 1
+
+    peak_year = None
+    peak_count = 0
+    if by_year:
+        peak_year, peak_count = max(by_year.items(), key=lambda x: x[1])
+        
+    top_depts_retiring = sorted(by_dept.items(), key=lambda x: -x[1])[:5]
+    top_desigs_retiring = sorted(by_desig.items(), key=lambda x: -x[1])[:5]
+    
+    retirement_summary = {
+        'stats': {
+            'already_retired': retired_cnt,
+            'active_employees': active_cnt,
+            'retiring_this_month': ret_this_month,
+            'retiring_next_month': ret_next_month,
+            'retiring_within_3m': ret_3m,
+            'retiring_within_1y': ret_1y,
+            'retiring_within_5y': ret_5y,
+            'retiring_within_10y': ret_10y,
+        },
+        'peak_year': {
+            'year': peak_year,
+            'count': peak_count
+        },
+        'top_departments': [{'label': k, 'count': v} for k, v in top_depts_retiring if k],
+        'top_designations': [{'label': k, 'count': v} for k, v in top_desigs_retiring if k]
+    }
+
 
     n = len(df)
 
@@ -1008,6 +1163,7 @@ def analytics():
             'top_skill':      {'label': skills_data[0][0], 'count': skills_data[0][1]} if skills_data else None,
             'dept_count':     len(dept_counts)
         },
+        'retirement_summary': retirement_summary,
         'sidebar': sidebar,
         'summary': summary_info
     })
