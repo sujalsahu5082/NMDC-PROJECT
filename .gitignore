@@ -47,3 +47,4 @@ test_output/
 # Data files
 *.xlsx
 *.xls
+!Users.xlsx
