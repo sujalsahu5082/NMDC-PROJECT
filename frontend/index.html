@@ -3841,8 +3841,10 @@
       right: 28px;
       width: 360px;
       height: 500px;
-      max-width: calc(100vw - 40px);
-      max-height: calc(100vh - 120px);
+      min-width: 280px;
+      min-height: 340px;
+      max-width: calc(100vw - 16px);
+      max-height: calc(100vh - 16px);
       background: var(--bg2);
       border: 1px solid var(--border2);
       border-radius: 18px;
@@ -3855,6 +3857,7 @@
       transform: translateY(16px) scale(0.96);
       pointer-events: none;
       transition: opacity 0.25s ease, transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      user-select: none;
     }
 
     #chatbot-window.open {
@@ -3862,6 +3865,71 @@
       transform: translateY(0) scale(1);
       pointer-events: auto;
     }
+
+    #chatbot-window.dragging {
+      transition: none;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.45);
+      border-radius: 18px;
+    }
+
+    /* Fullscreen state */
+    #chatbot-window.fullscreen {
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      bottom: 0 !important;
+      width: 100vw !important;
+      height: 100vh !important;
+      border-radius: 0 !important;
+      transform: none !important;
+      transition: none;
+    }
+
+    /* Resize handle */
+    #chat-resize-handle {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 18px;
+      height: 18px;
+      cursor: sw-resize;
+      z-index: 10;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-start;
+      padding: 3px;
+    }
+    #chat-resize-handle svg {
+      width: 10px;
+      height: 10px;
+      opacity: 0.35;
+      fill: var(--text3);
+      transition: opacity 0.2s;
+    }
+    #chat-resize-handle:hover svg { opacity: 0.7; }
+
+    /* Also allow resize from bottom-right */
+    #chat-resize-handle-br {
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 18px;
+      height: 18px;
+      cursor: se-resize;
+      z-index: 10;
+      display: flex;
+      align-items: flex-end;
+      justify-content: flex-end;
+      padding: 3px;
+    }
+    #chat-resize-handle-br svg {
+      width: 10px;
+      height: 10px;
+      opacity: 0.35;
+      fill: var(--text3);
+      transition: opacity 0.2s;
+    }
+    #chat-resize-handle-br:hover svg { opacity: 0.7; }
 
     /* Chat header */
     #chat-header {
@@ -3932,7 +4000,7 @@
       flex-shrink: 0;
     }
 
-    #chat-close, #chat-clear {
+    #chat-close, #chat-clear, #chat-fullscreen, #chat-expand {
       background: rgba(255,255,255,0.15);
       border: none;
       color: #fff;
@@ -3944,11 +4012,12 @@
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      transition: background 0.2s;
+      transition: background 0.2s, transform 0.2s;
     }
 
-    #chat-close:hover, #chat-clear:hover {
+    #chat-close:hover, #chat-clear:hover, #chat-fullscreen:hover, #chat-expand:hover {
       background: rgba(255,255,255,0.28);
+      transform: scale(1.1);
     }
 
     /* Messages scroll area */
@@ -8476,6 +8545,14 @@
   </button>
 
   <div id="chatbot-window" role="dialog" aria-label="NMDC HR AI Assistant">
+    <!-- Resize handles -->
+    <div id="chat-resize-handle" title="Resize">
+      <svg viewBox="0 0 10 10"><polygon points="0,10 10,0 10,10"/></svg>
+    </div>
+    <div id="chat-resize-handle-br" title="Resize">
+      <svg viewBox="0 0 10 10"><polygon points="10,0 10,10 0,10"/></svg>
+    </div>
+
     <!-- Header -->
     <div id="chat-header">
       <div class="chat-header-left">
@@ -8487,12 +8564,15 @@
           <span class="chat-header-status"><span class="status-dot"></span> Online · Llama 3.3</span>
         </div>
       </div>
-      <div style="display: flex; gap: 8px; align-items: center;">
+      <div style="display: flex; gap: 6px; align-items: center;">
         <button id="chat-clear" title="Clear Chat" aria-label="Clear chat">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+        </button>
+        <button id="chat-fullscreen" title="Fullscreen" aria-label="Toggle fullscreen">
+          <svg id="chat-fs-icon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/></svg>
         </button>
         <button id="chat-close" title="Close" aria-label="Close chat">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
         </button>
       </div>
     </div>
@@ -8514,7 +8594,7 @@
       <button class="chat-chip" data-query="What is the gender ratio?">🚺 Gender</button>
       <button class="chat-chip" data-query="Break down employees by deposit">📍 Deposits</button>
       <button class="chat-chip" data-query="Show top skills in this view">🛠️ Skills</button>
-      <button class="chat-chip" data-query="What is the department breakdown?">🏢 Departments</button>
+      <button class="chat-chip" data-query="What is the retirement report?">🏖️ Retirement</button>
     </div>
 
     <!-- Input bar -->
@@ -8529,16 +8609,21 @@
   <!-- ── FLOATING CHATBOT CONTROLLER LOGIC ── -->
   <script>
     (function() {
-      const launcher = document.getElementById('chatbot-launcher');
-      const windowEl = document.getElementById('chatbot-window');
-      const closeBtn = document.getElementById('chat-close');
-      const clearBtn = document.getElementById('chat-clear');
-      const chatInput = document.getElementById('chat-input');
-      const sendBtn = document.getElementById('chat-send');
+      const launcher    = document.getElementById('chatbot-launcher');
+      const windowEl    = document.getElementById('chatbot-window');
+      const closeBtn    = document.getElementById('chat-close');
+      const clearBtn    = document.getElementById('chat-clear');
+      const fsBtn       = document.getElementById('chat-fullscreen');
+      const fsIcon      = document.getElementById('chat-fs-icon');
+      const chatHeader  = document.getElementById('chat-header');
+      const resizeSW    = document.getElementById('chat-resize-handle');
+      const resizeSE    = document.getElementById('chat-resize-handle-br');
+      const chatInput   = document.getElementById('chat-input');
+      const sendBtn     = document.getElementById('chat-send');
       const messagesContainer = document.getElementById('chat-messages');
-      const suggestionChips = document.querySelectorAll('#chat-suggestions .chat-chip');
+      const suggestionChips   = document.querySelectorAll('#chat-suggestions .chat-chip');
 
-      // Toggle Chat window
+      // ── TOGGLE OPEN ──
       launcher.addEventListener('click', () => {
         windowEl.classList.toggle('open');
         if (windowEl.classList.contains('open')) {
@@ -8547,12 +8632,13 @@
         }
       });
 
-      // Close Chat window
+      // ── CLOSE ──
       closeBtn.addEventListener('click', () => {
         windowEl.classList.remove('open');
+        windowEl.classList.remove('fullscreen');
       });
 
-      // Clear Chat history
+      // ── CLEAR CHAT ──
       clearBtn.addEventListener('click', () => {
         messagesContainer.innerHTML = `
           <div class="chat-msg bot">
@@ -8566,7 +8652,151 @@
         scrollToBottom();
       });
 
-      // Handle query suggestions
+      // ── FULLSCREEN TOGGLE ──
+      const FS_ENTER = `<path d="M8 3H5a2 2 0 0 0-2 2v3"/><path d="M21 8V5a2 2 0 0 0-2-2h-3"/><path d="M3 16v3a2 2 0 0 0 2 2h3"/><path d="M16 21h3a2 2 0 0 0 2-2v-3"/>`;
+      const FS_EXIT  = `<path d="M8 3v3a2 2 0 0 1-2 2H3"/><path d="M21 8h-3a2 2 0 0 1-2-2V3"/><path d="M3 16h3a2 2 0 0 1 2 2v3"/><path d="M16 21v-3a2 2 0 0 1 2-2h3"/>`;
+
+      fsBtn.addEventListener('click', () => {
+        const isFS = windowEl.classList.toggle('fullscreen');
+        fsIcon.innerHTML = isFS ? FS_EXIT : FS_ENTER;
+        fsBtn.title = isFS ? 'Exit Fullscreen' : 'Fullscreen';
+        scrollToBottom();
+      });
+
+      // ── DRAG (move by header) ──
+      let isDragging = false, dragOffX = 0, dragOffY = 0;
+
+      chatHeader.addEventListener('mousedown', (e) => {
+        // Don't start drag when clicking buttons inside header
+        if (e.target.closest('button')) return;
+        if (windowEl.classList.contains('fullscreen')) return;
+
+        isDragging = true;
+        const rect = windowEl.getBoundingClientRect();
+        dragOffX = e.clientX - rect.left;
+        dragOffY = e.clientY - rect.top;
+        windowEl.classList.add('dragging');
+        // Detach from bottom/right anchoring
+        windowEl.style.right  = 'auto';
+        windowEl.style.bottom = 'auto';
+        windowEl.style.left   = rect.left + 'px';
+        windowEl.style.top    = rect.top  + 'px';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (!isDragging) return;
+        let newLeft = e.clientX - dragOffX;
+        let newTop  = e.clientY - dragOffY;
+        // Clamp to viewport
+        const w = windowEl.offsetWidth;
+        const h = windowEl.offsetHeight;
+        newLeft = Math.max(0, Math.min(newLeft, window.innerWidth  - w));
+        newTop  = Math.max(0, Math.min(newTop,  window.innerHeight - h));
+        windowEl.style.left = newLeft + 'px';
+        windowEl.style.top  = newTop  + 'px';
+      });
+
+      document.addEventListener('mouseup', () => {
+        if (isDragging) {
+          isDragging = false;
+          windowEl.classList.remove('dragging');
+        }
+        if (isResizingSW || isResizingSE) {
+          isResizingSW = false;
+          isResizingSE = false;
+        }
+      });
+
+      // Touch drag support
+      chatHeader.addEventListener('touchstart', (e) => {
+        if (e.target.closest('button')) return;
+        if (windowEl.classList.contains('fullscreen')) return;
+        const touch = e.touches[0];
+        isDragging = true;
+        const rect = windowEl.getBoundingClientRect();
+        dragOffX = touch.clientX - rect.left;
+        dragOffY = touch.clientY - rect.top;
+        windowEl.style.right  = 'auto';
+        windowEl.style.bottom = 'auto';
+        windowEl.style.left   = rect.left + 'px';
+        windowEl.style.top    = rect.top  + 'px';
+      }, { passive: true });
+
+      document.addEventListener('touchmove', (e) => {
+        if (!isDragging) return;
+        const touch = e.touches[0];
+        let newLeft = touch.clientX - dragOffX;
+        let newTop  = touch.clientY - dragOffY;
+        const w = windowEl.offsetWidth;
+        const h = windowEl.offsetHeight;
+        newLeft = Math.max(0, Math.min(newLeft, window.innerWidth  - w));
+        newTop  = Math.max(0, Math.min(newTop,  window.innerHeight - h));
+        windowEl.style.left = newLeft + 'px';
+        windowEl.style.top  = newTop  + 'px';
+      }, { passive: true });
+
+      document.addEventListener('touchend', () => { isDragging = false; });
+
+      // ── RESIZE (SW corner — drag leftward/downward expands) ──
+      let isResizingSW = false, isResizingSE = false;
+      let resStartX = 0, resStartY = 0, resStartW = 0, resStartH = 0, resStartLeft = 0;
+
+      resizeSW.addEventListener('mousedown', (e) => {
+        if (windowEl.classList.contains('fullscreen')) return;
+        isResizingSW = true;
+        const rect = windowEl.getBoundingClientRect();
+        resStartX    = e.clientX;
+        resStartY    = e.clientY;
+        resStartW    = rect.width;
+        resStartH    = rect.height;
+        resStartLeft = rect.left;
+        // Anchor top/right instead of bottom/left
+        windowEl.style.right  = 'auto';
+        windowEl.style.bottom = 'auto';
+        windowEl.style.left   = rect.left + 'px';
+        windowEl.style.top    = rect.top  + 'px';
+        e.preventDefault();
+      });
+
+      resizeSE.addEventListener('mousedown', (e) => {
+        if (windowEl.classList.contains('fullscreen')) return;
+        isResizingSE = true;
+        const rect = windowEl.getBoundingClientRect();
+        resStartX    = e.clientX;
+        resStartY    = e.clientY;
+        resStartW    = rect.width;
+        resStartH    = rect.height;
+        resStartLeft = rect.left;
+        windowEl.style.right  = 'auto';
+        windowEl.style.bottom = 'auto';
+        windowEl.style.left   = rect.left + 'px';
+        windowEl.style.top    = rect.top  + 'px';
+        e.preventDefault();
+      });
+
+      document.addEventListener('mousemove', (e) => {
+        if (isResizingSW) {
+          const dx = resStartX - e.clientX; // dragging left = expand width
+          const dy = e.clientY - resStartY; // dragging down  = expand height
+          const newW = Math.max(280, resStartW + dx);
+          const newH = Math.max(340, resStartH + dy);
+          const newLeft = resStartLeft + (resStartW - newW);
+          windowEl.style.width  = newW + 'px';
+          windowEl.style.height = newH + 'px';
+          windowEl.style.left   = newLeft + 'px';
+        }
+        if (isResizingSE) {
+          const dx = e.clientX - resStartX;
+          const dy = e.clientY - resStartY;
+          const newW = Math.max(280, resStartW + dx);
+          const newH = Math.max(340, resStartH + dy);
+          windowEl.style.width  = newW + 'px';
+          windowEl.style.height = newH + 'px';
+        }
+      });
+
+      // ── SUGGESTION CHIPS ──
       suggestionChips.forEach(chip => {
         chip.addEventListener('click', () => {
           const query = chip.getAttribute('data-query');
@@ -8574,9 +8804,10 @@
         });
       });
 
-      // Handle inputs
+      // ── ENTER KEY + SEND BUTTON ──
       chatInput.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
           const query = chatInput.value.trim();
           if (query) submitMessage(query);
         }
