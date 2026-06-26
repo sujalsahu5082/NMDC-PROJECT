@@ -1,0 +1,1025 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NMDC HR Analytics — Login</title>
+  <meta name="description" content="Secure login portal for NMDC HR Analytics Intelligence Platform.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/dist/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: #f0f4f8;
+    }
+
+    /* ── Full-page background with subtle gradient ── */
+    .pg {
+      min-height: 100vh;
+      width: 100%;
+      background: linear-gradient(135deg, #e8f0fe 0%, #f0f4f8 50%, #e3ecf7 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Decorative background blobs */
+    .pg::before {
+      content: '';
+      position: absolute;
+      top: -120px;
+      left: -120px;
+      width: 500px;
+      height: 500px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(0, 61, 122, 0.07) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    .pg::after {
+      content: '';
+      position: absolute;
+      bottom: -100px;
+      right: -100px;
+      width: 420px;
+      height: 420px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(75, 158, 214, 0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+
+    /* ── Card ── */
+    .card {
+      display: flex;
+      width: 100%;
+      max-width: 780px;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 24px 64px rgba(0, 30, 70, 0.22), 0 4px 16px rgba(0, 30, 70, 0.12);
+      border: 1px solid #C8D8EC;
+      position: relative;
+      z-index: 1;
+      animation: cardIn 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(28px) scale(0.97); }
+      to   { opacity: 1; transform: translateY(0)   scale(1); }
+    }
+
+    /* ── Left panel ── */
+    .lp {
+      width: 260px;
+      flex-shrink: 0;
+      background: linear-gradient(170deg, #003D7A 0%, #004F9F 60%, #00356A 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 44px 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .lp::before {
+      content: '';
+      position: absolute;
+      top: -70px; right: -70px;
+      width: 220px; height: 220px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.08);
+    }
+
+    .lp::after {
+      content: '';
+      position: absolute;
+      bottom: -80px; left: -50px;
+      width: 240px; height: 240px;
+      border-radius: 50%;
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+
+    .logo-ring {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 3px solid rgba(255,255,255,0.35);
+      margin-bottom: 20px;
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 8px 28px rgba(0,0,0,0.35), 0 0 0 6px rgba(255,255,255,0.10);
+      overflow: hidden;
+      padding: 0;
+    }
+
+    .logo-ring img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center;
+      border-radius: 50%;
+      display: block;
+    }
+
+    .lp-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      text-align: center;
+      line-height: 1.4;
+      margin-bottom: 6px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .lp-sub {
+      font-size: 11px;
+      color: rgba(255,255,255,0.58);
+      text-align: center;
+      line-height: 1.55;
+      position: relative;
+      z-index: 1;
+    }
+
+    .lp-div {
+      width: 36px;
+      height: 1.5px;
+      background: rgba(255,255,255,0.22);
+      margin: 20px auto;
+      position: relative;
+      z-index: 1;
+    }
+
+    .lp-chips {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      width: 100%;
+      position: relative;
+      z-index: 1;
+    }
+
+    .lp-chip {
+      background: rgba(255,255,255,0.09);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 7px;
+      padding: 8px 10px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 11px;
+      color: rgba(255,255,255,0.74);
+      transition: background 0.18s;
+    }
+
+    .lp-chip:hover { background: rgba(255,255,255,0.14); }
+    .lp-chip i { font-size: 13px; color: rgba(255,255,255,0.48); }
+
+    /* ── Right panel ── */
+    .rp {
+      flex: 1;
+      background: #fff;
+      padding: 38px 36px 30px;
+    }
+
+    .rp-head {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .lock-box {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: #EAF2FB;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .rp-title { font-size: 21px; font-weight: 700; color: #003D7A; line-height: 1.1; }
+
+    .rp-sub {
+      font-size: 12px;
+      color: #6B8CAF;
+      margin-top: 4px;
+    }
+
+    /* ── Form fields ── */
+    .field { margin-bottom: 15px; }
+
+    .field label {
+      display: block;
+      font-size: 11.5px;
+      font-weight: 700;
+      color: #1A3A5C;
+      margin-bottom: 5px;
+      letter-spacing: 0.2px;
+    }
+
+    .req { color: #C0392B; margin-left: 1px; }
+
+    .iw { position: relative; }
+
+    .ic {
+      position: absolute;
+      left: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #A0B8CC;
+      font-size: 14px;
+      pointer-events: none;
+    }
+
+    .inp {
+      width: 100%;
+      height: 41px;
+      border: 1.5px solid #C8D8EC;
+      border-radius: 8px;
+      padding: 0 12px 0 33px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #1A3A5C;
+      background: #F7FAFD;
+      outline: none;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+
+    .inp:focus {
+      border-color: #0056A6;
+      box-shadow: 0 0 0 3px rgba(0, 86, 166, 0.10);
+      background: #fff;
+    }
+
+    .inp.error {
+      border-color: #C0392B;
+      box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.08);
+    }
+
+    /* Select */
+    .sel-w { position: relative; }
+
+    .sel-w::after {
+      content: '';
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      border: 5px solid transparent;
+      border-top-color: #0056A6;
+      pointer-events: none;
+    }
+
+    .sel {
+      width: 100%;
+      height: 41px;
+      border: 1.5px solid #C8D8EC;
+      border-radius: 8px;
+      padding: 0 30px 0 33px;
+      font-size: 13px;
+      font-family: inherit;
+      color: #1A3A5C;
+      background: #F7FAFD;
+      outline: none;
+      appearance: none;
+      cursor: pointer;
+      transition: border-color 0.18s, box-shadow 0.18s;
+    }
+
+    .sel:focus {
+      border-color: #0056A6;
+      box-shadow: 0 0 0 3px rgba(0, 86, 166, 0.10);
+      background: #fff;
+    }
+
+    .sel.error { border-color: #C0392B; }
+
+    /* Password eye toggle */
+    .pw-inp { padding-right: 40px; }
+
+    .eye {
+      position: absolute;
+      right: 10px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #8AAAC0;
+      font-size: 15px;
+      line-height: 1;
+      padding: 2px;
+    }
+
+    .eye:hover { color: #0056A6; }
+
+    /* CAPTCHA */
+    .cap-row { display: flex; gap: 8px; align-items: center; }
+
+    .cap-box {
+      height: 41px;
+      min-width: 115px;
+      background: #EFF5FC;
+      border: 1.5px dashed #A8C8E8;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0 12px;
+      user-select: none;
+    }
+
+    .cap-txt {
+      font-family: monospace;
+      font-size: 18px;
+      font-weight: 700;
+      color: #003D7A;
+      letter-spacing: 5px;
+      font-style: italic;
+      filter: blur(0);
+    }
+
+    .cap-btn {
+      width: 38px;
+      height: 41px;
+      border: 1.5px solid #C8D8EC;
+      border-radius: 8px;
+      background: #F0F5FA;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0056A6;
+      flex-shrink: 0;
+      transition: background 0.15s, transform 0.2s;
+    }
+
+    .cap-btn:hover { background: #DCE8F5; }
+    .cap-btn.spin svg { animation: spin 0.4s linear; }
+
+    @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+
+    .cap-inp { flex: 1; }
+
+    /* Login button */
+    .login-btn {
+      width: 100%;
+      height: 45px;
+      background: linear-gradient(135deg, #003D7A 0%, #0056A6 100%);
+      border: none;
+      border-radius: 9px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      font-family: inherit;
+      letter-spacing: 1.4px;
+      cursor: pointer;
+      margin-top: 14px;
+      transition: background 0.18s, transform 0.15s, box-shadow 0.18s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 14px rgba(0, 61, 122, 0.30);
+    }
+
+    .login-btn:hover {
+      background: linear-gradient(135deg, #00459A 0%, #006FCC 100%);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 61, 122, 0.38);
+    }
+
+    .login-btn:active {
+      background: #002D5C;
+      transform: translateY(0);
+    }
+
+    .login-btn:disabled {
+      opacity: 0.65;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    /* Error message */
+    .err-msg {
+      font-size: 11.5px;
+      color: #C0392B;
+      margin-top: 5px;
+      display: none;
+    }
+
+    .err-msg.show { display: block; }
+
+    /* Toast notification */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: #C0392B;
+      color: #fff;
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.2);
+      opacity: 0;
+      transition: opacity 0.25s, transform 0.25s;
+      z-index: 9999;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    #toast.success { background: #1a7a34; }
+
+    /* SSL strip */
+    .ssl {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .ssl-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #EAF2FB;
+      border-radius: 20px;
+      padding: 4px 12px;
+      font-size: 11px;
+      color: #2D6A9F;
+      cursor: pointer;
+      transition: background 0.15s;
+      border: none;
+      font-family: inherit;
+    }
+
+    .ssl-chip:hover { background: #D4E8F7; }
+
+    /* Spinner for authenticating state */
+    .btn-spinner {
+      width: 16px;
+      height: 16px;
+      border: 2.5px solid rgba(255,255,255,0.35);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    /* Screen-reader only */
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border: 0;
+    }
+
+    /* ── Help & Support Modal ── */
+    .help-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 20, 50, 0.45);
+      backdrop-filter: blur(4px);
+      z-index: 8000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.22s;
+    }
+
+    .help-overlay.open {
+      opacity: 1;
+      pointer-events: all;
+    }
+
+    .help-modal {
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0, 30, 80, 0.28);
+      padding: 32px 30px 26px;
+      width: 100%;
+      max-width: 360px;
+      text-align: center;
+      transform: translateY(18px) scale(0.97);
+      transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+      position: relative;
+    }
+
+    .help-overlay.open .help-modal {
+      transform: translateY(0) scale(1);
+    }
+
+    .help-modal-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #EAF2FB, #D4E8F7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 26px;
+      color: #0056A6;
+    }
+
+    .help-modal-title {
+      font-size: 17px;
+      font-weight: 700;
+      color: #003D7A;
+      margin-bottom: 6px;
+    }
+
+    .help-modal-sub {
+      font-size: 12px;
+      color: #6B8CAF;
+      margin-bottom: 20px;
+    }
+
+    .help-email-box {
+      background: #F0F6FD;
+      border: 1.5px solid #C8D8EC;
+      border-radius: 10px;
+      padding: 14px 18px;
+      margin-bottom: 20px;
+    }
+
+    .help-email-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #6B8CAF;
+      letter-spacing: 0.6px;
+      text-transform: uppercase;
+      margin-bottom: 6px;
+    }
+
+    .help-email-link {
+      font-size: 14px;
+      font-weight: 700;
+      color: #0056A6;
+      text-decoration: none;
+      word-break: break-all;
+      display: block;
+    }
+
+    .help-email-link:hover {
+      color: #003D7A;
+      text-decoration: underline;
+    }
+
+    .help-close-btn {
+      width: 100%;
+      height: 40px;
+      background: #003D7A;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.18s;
+    }
+
+    .help-close-btn:hover { background: #0056A6; }
+
+    .help-modal-x {
+      position: absolute;
+      top: 12px;
+      right: 14px;
+      background: none;
+      border: none;
+      font-size: 20px;
+      color: #A0B8CC;
+      cursor: pointer;
+      line-height: 1;
+      padding: 2px 6px;
+      border-radius: 6px;
+      transition: color 0.15s, background 0.15s;
+    }
+
+    .help-modal-x:hover { color: #003D7A; background: #EAF2FB; }
+  </style>
+</head>
+
+<body>
+  <h1 class="sr-only">NMDC HR Analytics Login Portal</h1>
+
+  <div class="pg">
+    <div class="card" role="main">
+
+      <!-- Left Panel -->
+      <div class="lp" aria-hidden="true">
+        <div class="logo-ring">
+          <img src="/NMDC LOGO.jpg" alt="NMDC Logo">
+        </div>
+        <div class="lp-title">NMDC HR Analytics</div>
+        <div class="lp-sub">Human Resource Management &amp; Workforce Intelligence</div>
+        <div class="lp-div"></div>
+        <div class="lp-chips">
+          <div class="lp-chip"><i class="ti ti-shield-lock"></i>ISO 27001 Certified</div>
+          <div class="lp-chip"><i class="ti ti-lock"></i>256-bit SSL Encrypted</div>
+          <div class="lp-chip"><i class="ti ti-building"></i>Govt. of India Enterprise</div>
+          <div class="lp-chip"><i class="ti ti-chart-line"></i>Real-time Analytics</div>
+        </div>
+      </div>
+
+      <!-- Right Panel -->
+      <div class="rp">
+        <div class="rp-head">
+          <div class="lock-box">
+            <!-- Lock SVG icon -->
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none"
+                 stroke="#0056A6" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"
+                 aria-hidden="true">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"/>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"/>
+              <circle cx="12" cy="16" r="1" fill="#0056A6" stroke="none"/>
+            </svg>
+          </div>
+          <div style="margin-top: 3px;">
+            <div class="rp-title">Sign In</div>
+            <div class="rp-sub">Secure Enterprise HR Analytics Portal</div>
+          </div>
+        </div>
+
+        <!-- User Type -->
+        <div class="field">
+          <label for="ut">User Type<span class="req">*</span></label>
+          <div class="sel-w iw">
+            <i class="ti ti-users ic" aria-hidden="true"></i>
+            <select class="sel" id="ut" autocomplete="off">
+              <option value="">— Select User Type —</option>
+              <option value="admin">Admin</option>
+              <option value="employee">Employee</option>
+            </select>
+          </div>
+          <span class="err-msg" id="err-ut">Please select a User Type.</span>
+        </div>
+
+        <!-- Employee ID -->
+        <div class="field">
+          <label for="eid">Employee ID / Username<span class="req">*</span></label>
+          <div class="iw">
+            <i class="ti ti-id-badge ic" aria-hidden="true"></i>
+            <input class="inp" type="text" id="eid" placeholder="Enter Employee ID or Username" autocomplete="username">
+          </div>
+          <span class="err-msg" id="err-eid">Please enter your Employee ID or Username.</span>
+        </div>
+
+        <!-- Password -->
+        <div class="field">
+          <label for="pw">Password<span class="req">*</span></label>
+          <div class="iw">
+            <i class="ti ti-lock ic" aria-hidden="true"></i>
+            <input class="inp pw-inp" type="password" id="pw" placeholder="Enter your password" autocomplete="current-password">
+            <button class="eye" id="eye-btn" type="button" aria-label="Toggle password visibility">
+              <i class="ti ti-eye" id="eye-ic" aria-hidden="true"></i>
+            </button>
+          </div>
+          <span class="err-msg" id="err-pw">Please enter your Password.</span>
+        </div>
+
+        <!-- CAPTCHA -->
+        <div class="field">
+          <label>CAPTCHA Verification<span class="req">*</span></label>
+          <div class="cap-row">
+            <div class="cap-box" aria-label="CAPTCHA code" role="img">
+              <span class="cap-txt" id="cap-disp"></span>
+            </div>
+            <button class="cap-btn" id="cap-ref" type="button" aria-label="Refresh CAPTCHA">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                   stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                <path d="M20 11A8.1 8.1 0 0 0 4.5 9M4 5v4h4"/>
+                <path d="M4 13a8.1 8.1 0 0 0 15.5 2M20 19v-4h-4"/>
+              </svg>
+            </button>
+            <div class="cap-inp">
+              <input class="inp" type="text" id="cap-in"
+                     placeholder="Type the code" maxlength="5"
+                     autocomplete="off"
+                     style="padding-left:12px;letter-spacing:2px;text-transform:uppercase">
+            </div>
+          </div>
+          <span class="err-msg" id="err-cap">Invalid CAPTCHA. Please try again.</span>
+        </div>
+
+        <!-- Login Button -->
+        <button class="login-btn" id="login-btn" type="button">
+          <i class="ti ti-login" style="font-size:15px" aria-hidden="true"></i>
+          LOGIN
+        </button>
+
+        <!-- Contact strip -->
+        <div class="ssl">
+          <button class="ssl-chip" id="contact-btn" type="button">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                 aria-hidden="true" style="flex-shrink:0">
+              <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.81a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7a2 2 0 0 1 1.72 2.03z"/>
+            </svg>
+            Contact IT
+          </button>
+          <button class="ssl-chip" id="help-btn" type="button">
+            <i class="ti ti-headset" style="font-size:12px" aria-hidden="true"></i>
+            Help &amp; Support
+          </button>
+        </div>
+      </div><!-- /.rp -->
+    </div><!-- /.card -->
+  </div><!-- /.pg -->
+
+  <!-- Toast notification -->
+  <div id="toast" role="alert" aria-live="assertive"></div>
+
+  <!-- Help & Support Modal -->
+  <div class="help-overlay" id="help-overlay" role="dialog" aria-modal="true" aria-labelledby="help-title">
+    <div class="help-modal">
+      <button class="help-modal-x" id="help-modal-x" aria-label="Close">&times;</button>
+      <div class="help-modal-icon">
+        <!-- Headset / support SVG icon -->
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+             stroke="#0056A6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true">
+          <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+          <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3z"/>
+          <path d="M3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+        </svg>
+      </div>
+      <div class="help-modal-title" id="help-title">Help &amp; Support</div>
+      <div class="help-modal-sub">For any issues or queries, please reach out to us</div>
+      <div class="help-email-box">
+        <div class="help-email-label">Mail The Issue To</div>
+        <a class="help-email-link" href="mailto:sujalsahu177@gmail.com">sujalsahu177@gmail.com</a>
+      </div>
+      <button class="help-close-btn" id="help-close-btn" type="button">Close</button>
+    </div>
+  </div>
+
+  <!-- Contact IT Modal -->
+  <div class="help-overlay" id="contact-overlay" role="dialog" aria-modal="true" aria-labelledby="contact-title">
+    <div class="help-modal">
+      <button class="help-modal-x" id="contact-modal-x" aria-label="Close">&times;</button>
+      <div class="help-modal-icon" style="background:linear-gradient(135deg,#E8F5E9,#C8E6C9);">
+        <!-- Phone SVG icon -->
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none"
+             stroke="#1a7a34" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+             aria-hidden="true">
+          <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 12 19.79 19.79 0 0 1 1.61 3.4 2 2 0 0 1 3.6 1.22h3a2 2 0 0 1 2 1.72c.13.96.36 1.9.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.81a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.9.34 1.85.57 2.81.7a2 2 0 0 1 1.72 2.03z"/>
+        </svg>
+      </div>
+      <div class="help-modal-title" id="contact-title">Contact IT Support</div>
+      <div class="help-modal-sub">Reach out to our IT team directly</div>
+      <div class="help-email-box" style="border-color:#A5D6A7;background:#F1F8E9;">
+        <div class="help-email-label" style="color:#4CAF50;">Call / WhatsApp</div>
+        <a class="help-email-link" href="tel:+916266335330" style="color:#1a7a34;font-size:18px;letter-spacing:1px;">
+          +91 62663 35330
+        </a>
+      </div>
+      <button class="help-close-btn" id="contact-close-btn" type="button"
+              style="background:#1a7a34;">Close</button>
+    </div>
+  </div>
+
+  <script>
+  (function () {
+    /* ── CAPTCHA ── */
+    var CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    function genCaptcha() {
+      var s = '';
+      for (var i = 0; i < 5; i++) s += CHARS[Math.floor(Math.random() * CHARS.length)];
+      return s;
+    }
+    var currentCaptcha = genCaptcha();
+    document.getElementById('cap-disp').textContent = currentCaptcha;
+
+    var capRef = document.getElementById('cap-ref');
+    capRef.addEventListener('click', function () {
+      currentCaptcha = genCaptcha();
+      document.getElementById('cap-disp').textContent = currentCaptcha;
+      document.getElementById('cap-in').value = '';
+      hideErr('err-cap');
+      /* spin animation */
+      capRef.classList.add('spin');
+      setTimeout(function () { capRef.classList.remove('spin'); }, 420);
+    });
+
+    document.getElementById('cap-in').addEventListener('input', function () {
+      this.value = this.value.toUpperCase();
+    });
+
+    /* ── Password toggle ── */
+    var eyeBtn = document.getElementById('eye-btn');
+    var eyeIc  = document.getElementById('eye-ic');
+    var pwFld  = document.getElementById('pw');
+
+    function togglePw() {
+      if (pwFld.type === 'password') {
+        pwFld.type = 'text';
+        eyeIc.className = 'ti ti-eye-off';
+      } else {
+        pwFld.type = 'password';
+        eyeIc.className = 'ti ti-eye';
+      }
+    }
+    eyeBtn.addEventListener('click', togglePw);
+    eyeBtn.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter' || e.key === ' ') togglePw();
+    });
+
+    /* ── Toast helper ── */
+    var toast = document.getElementById('toast');
+    var toastTimer;
+    function showToast(msg, type) {
+      clearTimeout(toastTimer);
+      toast.textContent = msg;
+      toast.className = type === 'success' ? 'show success' : 'show';
+      toastTimer = setTimeout(function () { toast.className = ''; }, 3200);
+    }
+
+    /* ── Inline error helpers ── */
+    function showErr(id) { document.getElementById(id).classList.add('show'); }
+    function hideErr(id) { document.getElementById(id).classList.remove('show'); }
+    function markField(inputId, hasError) {
+      var el = document.getElementById(inputId);
+      if (el) {
+        if (hasError) el.classList.add('error');
+        else          el.classList.remove('error');
+      }
+    }
+
+    /* ── Login button — calls /api/login to verify against Users.xlsx ── */
+    document.getElementById('login-btn').addEventListener('click', function () {
+      var btn = this;
+      var ut  = document.getElementById('ut').value;
+      var eid = document.getElementById('eid').value.trim();
+      var pw  = document.getElementById('pw').value;
+      var cap = document.getElementById('cap-in').value.trim().toUpperCase();
+
+      var valid = true;
+
+      /* Validate User Type */
+      if (!ut) {
+        showErr('err-ut');
+        markField('ut', true);
+        valid = false;
+      } else {
+        hideErr('err-ut');
+        markField('ut', false);
+      }
+
+      /* Validate Employee ID / Username */
+      if (!eid) {
+        showErr('err-eid');
+        markField('eid', true);
+        valid = false;
+      } else {
+        hideErr('err-eid');
+        markField('eid', false);
+      }
+
+      /* Validate Password */
+      if (!pw) {
+        showErr('err-pw');
+        markField('pw', true);
+        valid = false;
+      } else {
+        hideErr('err-pw');
+        markField('pw', false);
+      }
+
+      /* Validate CAPTCHA */
+      if (cap !== currentCaptcha) {
+        showErr('err-cap');
+        markField('cap-in', true);
+        currentCaptcha = genCaptcha();
+        document.getElementById('cap-disp').textContent = currentCaptcha;
+        document.getElementById('cap-in').value = '';
+        valid = false;
+      } else {
+        hideErr('err-cap');
+        markField('cap-in', false);
+      }
+
+      if (!valid) {
+        showToast('Please fill in all fields correctly.', 'error');
+        return;
+      }
+
+      /* ── Call the Flask /api/login endpoint ── */
+      btn.disabled = true;
+      btn.innerHTML = '<div class="btn-spinner"></div> Authenticating...';
+
+      fetch('/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'same-origin',
+        body: JSON.stringify({
+          usertype: ut,
+          username: eid,
+          password: pw
+        })
+      })
+      .then(function (res) { return res.json().then(function(data){ return { status: res.status, data: data }; }); })
+      .then(function (resp) {
+        if (resp.status === 200 && resp.data.success) {
+          /* Credentials verified — redirect to dashboard */
+          showToast('Welcome, ' + resp.data.user + '! Redirecting…', 'success');
+          setTimeout(function () {
+            window.location.href = '/dashboard';
+          }, 1400);
+        } else {
+          /* Auth failed — show server error message */
+          var msg = (resp.data && resp.data.error) ? resp.data.error : 'Login failed. Please try again.';
+          showToast(msg, 'error');
+          /* Highlight credentials fields */
+          markField('eid', true);
+          markField('pw', true);
+          /* Reset button */
+          btn.disabled = false;
+          btn.innerHTML = '<i class="ti ti-login" style="font-size:15px" aria-hidden="true"></i> LOGIN';
+          /* Refresh CAPTCHA after failed attempt */
+          currentCaptcha = genCaptcha();
+          document.getElementById('cap-disp').textContent = currentCaptcha;
+          document.getElementById('cap-in').value = '';
+        }
+      })
+      .catch(function (err) {
+        showToast('Connection error. Is the server running?', 'error');
+        btn.disabled = false;
+        btn.innerHTML = '<i class="ti ti-login" style="font-size:15px" aria-hidden="true"></i> LOGIN';
+      });
+    });
+
+    /* ── Clear error styling on input ── */
+    ['ut', 'eid', 'pw', 'cap-in'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      el.addEventListener('input', function () { el.classList.remove('error'); });
+      el.addEventListener('change', function () { el.classList.remove('error'); });
+    });
+
+    /* ── Help & Support Modal ── */
+    var helpOverlay = document.getElementById('help-overlay');
+
+    function openHelp()  { helpOverlay.classList.add('open'); }
+    function closeHelp() { helpOverlay.classList.remove('open'); }
+
+    document.getElementById('help-btn').addEventListener('click', openHelp);
+    document.getElementById('help-modal-x').addEventListener('click', closeHelp);
+    document.getElementById('help-close-btn').addEventListener('click', closeHelp);
+
+    helpOverlay.addEventListener('click', function (e) {
+      if (e.target === helpOverlay) closeHelp();
+    });
+
+    /* ── Contact IT Modal ── */
+    var contactOverlay = document.getElementById('contact-overlay');
+
+    function openContact()  { contactOverlay.classList.add('open'); }
+    function closeContact() { contactOverlay.classList.remove('open'); }
+
+    document.getElementById('contact-btn').addEventListener('click', openContact);
+    document.getElementById('contact-modal-x').addEventListener('click', closeContact);
+    document.getElementById('contact-close-btn').addEventListener('click', closeContact);
+
+    contactOverlay.addEventListener('click', function (e) {
+      if (e.target === contactOverlay) closeContact();
+    });
+
+    /* Close both modals on Escape key */
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') { closeHelp(); closeContact(); }
+    });
+  })();
+  </script>
+</body>
+</html>

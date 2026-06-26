@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NMDC · HR Retirement Intelligence</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=Source+Sans+3:wght@300;400;500;600;700&family=Source+Code+Pro:wght@400;500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="app">
+        <div class="topbar">
+            <button class="tab on" data-p="employees" onclick="GT(this)"><i class="fas fa-users"></i> Employees <span
+                    class="tbn" id="ecnt">0</span></button>
+            <button class="tab" data-p="charts" onclick="GT(this)"><i class="fas fa-chart-area"></i> Charts</button>
+            <button class="tab" data-p="report" onclick="GT(this)"><i class="fas fa-file-chart-column"></i> Report
+                Summary</button>
+            <div class="topbar-spacer"></div>
+            <div class="topbar-actions">
+                <button class="global-export-btn" onclick="openGlobalExport()"><i class="fas fa-download"></i>
+                    Export</button>
+            </div>
+        </div>
+        <div class="pages">
+
+            <!-- ===== EMPLOYEES ===== -->
+            <div class="pg on" id="pg-employees">
+                <div class="land" id="land">
+                    <!-- Hero section (icon above card) -->
+                    <div class="rr-hero">
+                        <div class="rr-hero-icon-wrap">
+                            <div class="rr-hero-icon-bg"></div>
+                            <i class="fas fa-file-excel rr-hero-icon"></i>
+                        </div>
+                    </div>
+                    <div class="drop" id="dz">
+                        <!-- Drop zone content (unchanged) -->
+                        <h2>Drop your Excel file here</h2>
+                        <p>Drag &amp; drop or <span class="drop-browse-link">click to browse</span>.<br>
+                            Your data is processed instantly — no column mapping needed.</p>
+                        <div class="drop-divider">
+                            <span>supports</span>
+                        </div>
+                        <div class="dtags">
+                            <span class="dtag"><i class="fas fa-file-excel"></i> .xlsx</span>
+                            <span class="dtag"><i class="fas fa-file"></i> .xls</span>
+                        </div>
+                        <div class="drop-features">
+                            <div class="drop-feat"><i class="fas fa-bolt"></i> Instant Analytics</div>
+                            <div class="drop-feat"><i class="fas fa-shield-halved"></i> Secure &amp; Local</div>
+                            <div class="drop-feat"><i class="fas fa-wand-magic-sparkles"></i> Auto-Detected</div>
+                        </div>
+                        <div class="rr-shimmer"></div>
+                    </div>
+
+                </div><!-- /.land -->
+
+                <div id="emp-dash" style="display:none">
+                    <div class="upload-area">
+                        <label class="upload-btn" id="inline-upload-btn"><i class="fas fa-arrow-up-from-bracket"></i>
+                            Upload Excel <input type="file" id="fi-inline" accept=".xlsx,.xls"
+                                style="display:none"></label>
+                        <span class="file-info" id="file-info-inline" style="display:none"><i
+                                class="fas fa-file-excel"></i><span id="fcn-inline"></span></span>
+                    </div>
+
+                    <!-- Global Filter Bar — single source of truth for entire dashboard -->
+                    <div class="gf-bar" id="gfb-emp">
+                        <div class="gf-head" onclick="toggleGF('emp')">
+                            <div class="gf-hl"><i class="fas fa-sliders"></i> Global Filters <span
+                                    style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px">(applies to
+                                    all sections)</span></div>
+                            <i class="fas fa-chevron-down" id="gf-icon-emp" style="font-size:11px;color:var(--tx3)"></i>
+                        </div>
+                        <div id="gf-body-emp" style="display:none">
+                            <div class="gf-body">
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Deposit</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-dep-emp')"
+                                            id="gf-dep-emp-trigger">All Deposits</div>
+                                        <div class="ms-panel" id="gf-dep-emp"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-dep-emp-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-dep-emp')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-dep-emp')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Department</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-dept-emp')"
+                                            id="gf-dept-emp-trigger">All</div>
+                                        <div class="ms-panel" id="gf-dept-emp"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-dept-emp-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-dept-emp')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-dept-emp')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Sub-Dept</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-sub-emp')"
+                                            id="gf-sub-emp-trigger">All</div>
+                                        <div class="ms-panel" id="gf-sub-emp"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-sub-emp-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-sub-emp')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-sub-emp')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Skill</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-skill-emp')"
+                                            id="gf-skill-emp-trigger">All</div>
+                                        <div class="ms-panel" id="gf-skill-emp"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-skill-emp-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-skill-emp')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-skill-emp')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Grade</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-grade-emp')"
+                                            id="gf-grade-emp-trigger">All</div>
+                                        <div class="ms-panel" id="gf-grade-emp"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-grade-emp-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-grade-emp')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-grade-emp')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Designation</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-desig-emp')"
+                                            id="gf-desig-emp-trigger">All</div>
+                                        <div class="ms-panel" id="gf-desig-emp"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-desig-emp-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-desig-emp')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-desig-emp')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Status</div><select class="fsel"
+                                        style="width:100%" id="gf-status-emp"
+                                        onchange="applyGF()">
+                                        <option value="">All</option>
+                                        <option value="active">Active</option>
+                                        <option value="retired">Retired</option>
+                                        <option value="soon">Retiring Soon</option>
+                                        <option value="year">Retiring This Year</option>
+                                    </select>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Ret. Year</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-ry-emp')" id="gf-ry-emp-trigger">
+                                            All Years</div>
+                                        <div class="ms-panel" id="gf-ry-emp"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-ry-emp-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-ry-emp')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-ry-emp')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Ret. Fin. Year</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-rfy-emp')"
+                                            id="gf-rfy-emp-trigger">All FY</div>
+                                        <div class="ms-panel" id="gf-rfy-emp"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-rfy-emp-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-rfy-emp')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-rfy-emp')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">From Date</div><input type="date" class="gf-date"
+                                        id="gf-from-emp" onchange="applyGF()">
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">To Date</div><input type="date" class="gf-date" id="gf-to-emp"
+                                        onchange="applyGF()">
+                                </div>
+                            </div>
+                            <div class="gf-actions-row"><button class="gf-act-btn" onclick="clearAllGF()"><i
+                                        class="fas fa-rotate-left"></i> Clear All</button><button class="gf-act-btn pri"
+                                    onclick="applyGF()"><i class="fas fa-check"></i> Apply</button></div>
+                        </div>
+                    </div>
+                    <div class="gf-chips" id="gf-chips"></div>
+
+                    <!-- Insight Strip -->
+                    <div class="insight-strip" id="emp-insight-strip" style="display:none">
+                        <div class="insight-strip-ico"><i class="fas fa-lightbulb"></i></div>
+                        <div class="insight-strip-content">
+                            <div class="insight-strip-title"><i class="fas fa-bolt"></i> Smart Insights</div>
+                            <div class="insight-strip-text" id="emp-insight-text">—</div>
+                        </div>
+                    </div>
+
+                    <!-- KPI Cards -->
+                    <div class="krow a0">
+                        <div class="kpi c3" onclick="openKPIDrill('thisMonth')">
+                            <div class="kpi-stripe"></div>
+                            <div class="kpi-icon"><i class="fas fa-calendar-week"></i></div>
+                            <div class="kpi-num" id="k-this-month">0</div>
+                            <div class="kpi-lbl">Retiring This Month</div>
+                            <div class="kpi-sub">click to view →</div>
+                        </div>
+                        <div class="kpi c4" onclick="openKPIDrill('nextMonth')">
+                            <div class="kpi-stripe"></div>
+                            <div class="kpi-icon"><i class="fas fa-calendar-plus"></i></div>
+                            <div class="kpi-num" id="k-next-month">0</div>
+                            <div class="kpi-lbl">Retiring Next Month</div>
+                            <div class="kpi-sub">click to view →</div>
+                        </div>
+                        <div class="kpi c3" onclick="openKPIDrill('3m')">
+                            <div class="kpi-stripe"></div>
+                            <div class="kpi-icon"><i class="fas fa-hourglass-half"></i></div>
+                            <div class="kpi-num" id="k-3m">0</div>
+                            <div class="kpi-lbl">Within 3 Months</div>
+                            <div class="kpi-sub">click to view →</div>
+                        </div>
+                        <div class="kpi c4" onclick="openKPIDrill('1y')">
+                            <div class="kpi-stripe"></div>
+                            <div class="kpi-icon"><i class="fas fa-calendar-check"></i></div>
+                            <div class="kpi-num" id="k-1y">0</div>
+                            <div class="kpi-lbl">Within 1 Year</div>
+                            <div class="kpi-sub">click to view →</div>
+                        </div>
+                        <div class="kpi c5" onclick="openKPIDrill('5y')">
+                            <div class="kpi-stripe"></div>
+                            <div class="kpi-icon"><i class="fas fa-chart-line"></i></div>
+                            <div class="kpi-num" id="k-5y">0</div>
+                            <div class="kpi-lbl">Within 5 Years</div>
+                            <div class="kpi-sub">click to view →</div>
+                        </div>
+                        <div class="kpi c6" onclick="openKPIDrill('10y')">
+                            <div class="kpi-stripe"></div>
+                            <div class="kpi-icon"><i class="fas fa-tree"></i></div>
+                            <div class="kpi-num" id="k-10y">0</div>
+                            <div class="kpi-lbl">Within 10 Years</div>
+                            <div class="kpi-sub">click to view →</div>
+                        </div>
+                        <div class="kpi c7" onclick="openKPIDrill('retired')">
+                            <div class="kpi-stripe"></div>
+                            <div class="kpi-icon"><i class="fas fa-user-check"></i></div>
+                            <div class="kpi-num" id="k-retired">0</div>
+                            <div class="kpi-lbl">Already Retired</div>
+                            <div class="kpi-sub">click to view →</div>
+                        </div>
+                        <div class="kpi c2" onclick="openKPIDrill('active')">
+                            <div class="kpi-stripe"></div>
+                            <div class="kpi-icon"><i class="fas fa-users"></i></div>
+                            <div class="kpi-num" id="k-active">0</div>
+                            <div class="kpi-lbl">Active Employees</div>
+                            <div class="kpi-sub">click to view →</div>
+                        </div>
+                        <div class="kpi c9" onclick="openKPIDrill('age')">
+                            <div class="kpi-stripe"></div>
+                            <div class="kpi-icon"><i class="fas fa-user-clock"></i></div>
+                            <div class="kpi-num" id="k-avg-age" style="font-size:22px">—</div>
+                            <div class="kpi-lbl">Avg Age Today</div>
+                            <div class="kpi-sub">click for age analysis →</div>
+                        </div>
+                    </div>
+
+                    <!-- Secondary filters + Selection Toolbar -->
+                    <div class="fbar">
+                        <div class="fg">
+                            <div class="fl">Search</div>
+                            <div class="sbox"><i class="fas fa-magnifying-glass"></i><input type="text" id="srch"
+                                    placeholder="Name, ID, dept, skill…" oninput="renderTable()"></div>
+                        </div>
+                        <div class="fg">
+                            <div class="fl">Dept</div><select class="fsel" id="lf-d" onchange="renderTable()">
+                                <option value="">All</option>
+                            </select>
+                        </div>
+                        <div class="fg">
+                            <div class="fl">Gender</div><select class="fsel" id="lf-g" onchange="renderTable()">
+                                <option value="">All</option>
+                                <option value="M">Male</option>
+                                <option value="F">Female</option>
+                                <option value="O">Other</option>
+                            </select>
+                        </div>
+                        <div class="fg">
+                            <div class="fl">Status</div><select class="fsel" id="lf-status" onchange="renderTable()">
+                                <option value="">All</option>
+                                <option value="active">Active</option>
+                                <option value="retired">Retired</option>
+                                <option value="soon">Soon</option>
+                            </select>
+                        </div>
+                        <button class="fbtn" onclick="lReset()"><i class="fas fa-rotate-left"></i> Reset</button>
+                        <div class="exp-wrap"><button class="exp-btn" onclick="toggleExp()"><i
+                                    class="fas fa-download"></i> Export <i class="fas fa-chevron-down"></i></button>
+                            <div class="exp-dd" id="exp-dd">
+                                <div class="exp-section-title">Export Current View</div>
+                                <div class="exp-row" onclick="doExp('xlsx')"><i class="fas fa-file-excel"
+                                        style="color:#065f46"></i> Excel (.xlsx)</div>
+                                <div class="exp-row" onclick="doExp('pdf')"><i class="fas fa-file-pdf"
+                                        style="color:#991b1b"></i> PDF (Print)</div>
+                                <div class="exp-section-title">Export All Data</div>
+                                <div class="exp-row" onclick="doExpAll('xlsx')"><i class="fas fa-file-excel"
+                                        style="color:#065f46"></i> All Employees Excel</div>
+                                <div class="exp-row" onclick="doExpAll('pdf')"><i class="fas fa-file-pdf"
+                                        style="color:#991b1b"></i> All Employees PDF</div>
+                            </div>
+                        </div>
+                        <span class="rc" id="rcount">—</span>
+                    </div>
+
+                    <!-- Selection Action Toolbar -->
+                    <div class="sel-toolbar" id="sel-toolbar" style="display:none">
+                        <div class="sel-toolbar-left">
+                            <i class="fas fa-check-square" style="color:var(--ind2)"></i>
+                            <span class="sel-count-lbl"><strong id="sel-count">0</strong> selected</span>
+                            <button class="sel-act-btn" onclick="selectAllVisible()"><i class="fas fa-check-double"></i>
+                                Select All Visible</button>
+                            <button class="sel-act-btn" onclick="selectAllPages()"><i class="fas fa-layer-group"></i>
+                                Select All Pages</button>
+                            <button class="sel-act-btn danger" onclick="clearSelection()"><i class="fas fa-times"></i>
+                                Clear</button>
+                        </div>
+                        <div class="sel-toolbar-right">
+                            <button class="sel-act-btn primary" onclick="exportSelected('xlsx')"><i
+                                    class="fas fa-file-excel"></i> Export Excel</button>
+                            <button class="sel-act-btn primary" onclick="exportSelected('pdf')"><i
+                                    class="fas fa-file-pdf"></i> Export PDF</button>
+                            <button class="sel-act-btn" onclick="viewSelectedDrill()"><i class="fas fa-eye"></i> View
+                                Details</button>
+                        </div>
+                    </div>
+
+                    <div class="tw">
+                        <div class="ts">
+                            <table>
+                                <thead>
+                                    <tr id="thead"></tr>
+                                </thead>
+                                <tbody id="tbody"></tbody>
+                            </table>
+                        </div>
+                        <div class="pag-bar" id="pag-bar" style="display:none">
+                            <div class="pag-info" id="pag-info"></div>
+                            <div class="pag-btns" id="pag-btns"></div>
+                            <div class="pag-size">Rows:<select onchange="onPageSzChg(this)">
+                                    <option value="25">25</option>
+                                    <option value="50">50</option>
+                                    <option value="100">100</option>
+                                    <option value="0">All</option>
+                                </select></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== CHARTS ===== -->
+            <div class="pg" id="pg-charts">
+                <div class="ph" id="ch-ph"><i class="fas fa-chart-pie"></i><span>Upload a file to view charts</span>
+                </div>
+                <div id="ch-body" style="display:none">
+                    <!-- Global Filter Bar — mirrors employee section filters -->
+                    <div class="gf-bar" id="gfb-charts">
+                        <div class="gf-head" onclick="toggleGF('charts')">
+                            <div class="gf-hl"><i class="fas fa-sliders"></i> Global Filters <span
+                                    style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px">(applies to
+                                    all sections)</span></div>
+                            <i class="fas fa-chevron-down" id="gf-icon-charts"
+                                style="font-size:11px;color:var(--tx3)"></i>
+                        </div>
+                        <div id="gf-body-charts" style="display:none">
+                            <div class="gf-body">
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Deposit</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-dep-charts')"
+                                            id="gf-dep-charts-trigger">All Deposits</div>
+                                        <div class="ms-panel" id="gf-dep-charts"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-dep-charts-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-dep-charts')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-dep-charts')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Department</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-dept-charts')"
+                                            id="gf-dept-charts-trigger">All</div>
+                                        <div class="ms-panel" id="gf-dept-charts"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-dept-charts-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-dept-charts')">All</button><button
+                                                    class="ms-act-btn"
+                                                    onclick="clearMS('gf-dept-charts')">Clear</button></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Sub-Dept</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-sub-charts')"
+                                            id="gf-sub-charts-trigger">All</div>
+                                        <div class="ms-panel" id="gf-sub-charts"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-sub-charts-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-sub-charts')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-sub-charts')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Skill</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-skill-charts')"
+                                            id="gf-skill-charts-trigger">All</div>
+                                        <div class="ms-panel" id="gf-skill-charts"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-skill-charts-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-skill-charts')">All</button><button
+                                                    class="ms-act-btn"
+                                                    onclick="clearMS('gf-skill-charts')">Clear</button></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Grade</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-grade-charts')"
+                                            id="gf-grade-charts-trigger">All</div>
+                                        <div class="ms-panel" id="gf-grade-charts"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-grade-charts-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-grade-charts')">All</button><button
+                                                    class="ms-act-btn"
+                                                    onclick="clearMS('gf-grade-charts')">Clear</button></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Designation</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-desig-charts')"
+                                            id="gf-desig-charts-trigger">All</div>
+                                        <div class="ms-panel" id="gf-desig-charts"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-desig-charts-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-desig-charts')">All</button><button
+                                                    class="ms-act-btn"
+                                                    onclick="clearMS('gf-desig-charts')">Clear</button></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Status</div><select class="fsel"
+                                        style="width:100%" id="gf-status-charts"
+                                        onchange="applyGFFrom('charts')">
+                                        <option value="">All</option>
+                                        <option value="active">Active</option>
+                                        <option value="retired">Retired</option>
+                                        <option value="soon">Retiring Soon</option>
+                                        <option value="year">Retiring This Year</option>
+                                    </select>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Ret. Year</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-ry-charts')"
+                                            id="gf-ry-charts-trigger">All Years</div>
+                                        <div class="ms-panel" id="gf-ry-charts"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-ry-charts-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-ry-charts')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-ry-charts')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Ret. Fin. Year</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-rfy-charts')"
+                                            id="gf-rfy-charts-trigger">All FY</div>
+                                        <div class="ms-panel" id="gf-rfy-charts"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-rfy-charts-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-rfy-charts')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-rfy-charts')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">From Date</div><input type="date" class="gf-date"
+                                        id="gf-from-charts" onchange="applyGFFrom('charts')">
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">To Date</div><input type="date" class="gf-date"
+                                        id="gf-to-charts" onchange="applyGFFrom('charts')">
+                                </div>
+                            </div>
+                            <div class="gf-actions-row"><button class="gf-act-btn" onclick="clearAllGF()"><i
+                                        class="fas fa-rotate-left"></i> Clear All</button><button class="gf-act-btn pri"
+                                    onclick="applyGFFrom('charts')"><i class="fas fa-check"></i> Apply</button></div>
+                        </div>
+                    </div>
+                    <div class="gf-chips" id="ch-chips" style="margin-bottom:10px"></div>
+                    <div class="cc a0" style="margin-bottom:10px">
+                        <div class="cc-h">
+                            <div class="cc-hl"><i class="fas fa-chart-simple"></i> Age Band Distribution</div>
+                            <div style="display:flex;gap:6px;align-items:center">
+                                <div class="chart-export-wrap"><button class="chart-exp-btn"
+                                        onclick="toggleChartExportMenu(event,'chart-exp-age-dist')"><i
+                                            class="fas fa-download"></i></button>
+                                    <div class="chart-export-menu" id="chart-exp-age-dist">
+                                        <div class="chart-exp-item"
+                                            onclick="exportInlineChartExcel('age-dist','Age Band Distribution')"><i
+                                                class="fas fa-file-excel" style="color:#065f46"></i> Excel</div>
+                                        <div class="chart-exp-item"
+                                            onclick="exportInlineChart('pdf','ca-age-dist','Age Band Distribution')"><i
+                                                class="fas fa-file-pdf" style="color:#991b1b"></i> PDF</div>
+                                        <div class="chart-exp-item"
+                                            onclick="exportInlineChart('png','ca-age-dist','Age Band Distribution')"><i
+                                                class="fas fa-image" style="color:#1e3a8a"></i> PNG</div>
+                                        <div class="chart-exp-item"
+                                            onclick="exportInlineChart('jpeg','ca-age-dist','Age Band Distribution')"><i
+                                                class="fas fa-image" style="color:#92400e"></i> JPEG</div>
+                                    </div>
+                                </div><button class="fs-btn" onclick="openFS('age-dist','Age Band Distribution')"><i
+                                        class="fas fa-expand"></i></button>
+                            </div>
+                        </div>
+                        <div class="age-band-grid" id="age-band-grid"></div>
+                        <div class="cw h180"><canvas id="ca-age-dist"></canvas></div>
+                        <div class="chart-hint">Click any band for employee list</div>
+                    </div>
+                    <div class="grid g2 a0">
+                        <div class="cc">
+                            <div class="cc-h">
+                                <div class="cc-hl"><i class="fas fa-chart-column"></i> By Department</div>
+                                <div style="display:flex;gap:6px;align-items:center">
+                                    <div class="chart-export-wrap"><button class="chart-exp-btn"
+                                            onclick="toggleChartExportMenu(event,'chart-exp-dept')"><i
+                                                class="fas fa-download"></i></button>
+                                        <div class="chart-export-menu" id="chart-exp-dept">
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChartExcel('dept','By Department')"><i
+                                                    class="fas fa-file-excel" style="color:#065f46"></i> Excel</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('pdf','ca-dept','By Department')"><i
+                                                    class="fas fa-file-pdf" style="color:#991b1b"></i> PDF</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('png','ca-dept','By Department')"><i
+                                                    class="fas fa-image" style="color:#1e3a8a"></i> PNG</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('jpeg','ca-dept','By Department')"><i
+                                                    class="fas fa-image" style="color:#92400e"></i> JPEG</div>
+                                        </div>
+                                    </div><button class="fs-btn" onclick="openFS('dept','Department-wise')"><i
+                                            class="fas fa-expand"></i></button>
+                                </div>
+                            </div>
+                            <div class="cw h210"><canvas id="ca-dept"></canvas></div>
+                            <div class="chart-hint">Click to drill down</div>
+                        </div>
+                        <div class="cc">
+                            <div class="cc-h">
+                                <div class="cc-hl"><i class="fas fa-chart-bar"></i> Monthly Retirement Volume</div>
+                                <div style="display:flex;gap:6px;align-items:center">
+                                    <div class="chart-export-wrap"><button class="chart-exp-btn"
+                                            onclick="toggleChartExportMenu(event,'chart-exp-month')"><i
+                                                class="fas fa-download"></i></button>
+                                        <div class="chart-export-menu" id="chart-exp-month">
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChartExcel('month','Monthly Retirement Volume')"><i
+                                                    class="fas fa-file-excel" style="color:#065f46"></i> Excel</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('pdf','ca-month','Monthly Retirement Volume')">
+                                                <i class="fas fa-file-pdf" style="color:#991b1b"></i> PDF</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('png','ca-month','Monthly Retirement Volume')">
+                                                <i class="fas fa-image" style="color:#1e3a8a"></i> PNG</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('jpeg','ca-month','Monthly Retirement Volume')">
+                                                <i class="fas fa-image" style="color:#92400e"></i> JPEG</div>
+                                        </div>
+                                    </div><button class="fs-btn"
+                                        onclick="openFS('month','Monthly Retirement Volume')"><i
+                                            class="fas fa-expand"></i></button>
+                                </div>
+                            </div>
+                            <div class="cw h210"><canvas id="ca-month"></canvas></div>
+                            <div class="chart-hint">Click bar for monthly detail</div>
+                        </div>
+                    </div>
+                    <div class="grid g2 a0">
+                        <div class="cc">
+                            <div class="cc-h">
+                                <div class="cc-hl"><i class="fas fa-chart-pie"></i> By Designation</div>
+                                <div style="display:flex;gap:6px;align-items:center">
+                                    <div class="chart-export-wrap"><button class="chart-exp-btn"
+                                            onclick="toggleChartExportMenu(event,'chart-exp-desig')"><i
+                                                class="fas fa-download"></i></button>
+                                        <div class="chart-export-menu" id="chart-exp-desig">
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChartExcel('desig','By Designation')"><i
+                                                    class="fas fa-file-excel" style="color:#065f46"></i> Excel</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('pdf','ca-desig','By Designation')"><i
+                                                    class="fas fa-file-pdf" style="color:#991b1b"></i> PDF</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('png','ca-desig','By Designation')"><i
+                                                    class="fas fa-image" style="color:#1e3a8a"></i> PNG</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('jpeg','ca-desig','By Designation')"><i
+                                                    class="fas fa-image" style="color:#92400e"></i> JPEG</div>
+                                        </div>
+                                    </div><button class="fs-btn" onclick="openFS('desig','Designation-wise')"><i
+                                            class="fas fa-expand"></i></button>
+                                </div>
+                            </div>
+                            <div class="cw h200"><canvas id="ca-desig"></canvas></div>
+                            <div class="chart-hint">Click to drill down</div>
+                        </div>
+                        <div class="cc">
+                            <div class="cc-h">
+                                <div class="cc-hl"><i class="fas fa-brain"></i> Skill-Wise</div>
+                                <div style="display:flex;gap:6px;align-items:center">
+                                    <div class="chart-export-wrap"><button class="chart-exp-btn"
+                                            onclick="toggleChartExportMenu(event,'chart-exp-skill')"><i
+                                                class="fas fa-download"></i></button>
+                                        <div class="chart-export-menu" id="chart-exp-skill">
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChartExcel('skill','Skill-Wise')"><i
+                                                    class="fas fa-file-excel" style="color:#065f46"></i> Excel</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('pdf','ca-skill','Skill-Wise')"><i
+                                                    class="fas fa-file-pdf" style="color:#991b1b"></i> PDF</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('png','ca-skill','Skill-Wise')"><i
+                                                    class="fas fa-image" style="color:#1e3a8a"></i> PNG</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('jpeg','ca-skill','Skill-Wise')"><i
+                                                    class="fas fa-image" style="color:#92400e"></i> JPEG</div>
+                                        </div>
+                                    </div><button class="fs-btn" onclick="openFS('skill','Skill-wise Retirements')"><i
+                                            class="fas fa-expand"></i></button>
+                                </div>
+                            </div>
+                            <div class="cw h210"><canvas id="ca-skill"></canvas></div>
+                            <div class="chart-hint">Top skills by retirement count</div>
+                        </div>
+                    </div>
+                    <div class="grid g2 a0">
+                        <div class="cc">
+                            <div class="cc-h">
+                                <div class="cc-hl"><i class="fas fa-calendar-alt"></i> Financial Year</div>
+                                <div style="display:flex;gap:6px;align-items:center">
+                                    <div class="chart-export-wrap"><button class="chart-exp-btn"
+                                            onclick="toggleChartExportMenu(event,'chart-exp-fy')"><i
+                                                class="fas fa-download"></i></button>
+                                        <div class="chart-export-menu" id="chart-exp-fy">
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChartExcel('fy','Financial Year')"><i
+                                                    class="fas fa-file-excel" style="color:#065f46"></i> Excel</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('pdf','ca-fy','Financial Year')"><i
+                                                    class="fas fa-file-pdf" style="color:#991b1b"></i> PDF</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('png','ca-fy','Financial Year')"><i
+                                                    class="fas fa-image" style="color:#1e3a8a"></i> PNG</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('jpeg','ca-fy','Financial Year')"><i
+                                                    class="fas fa-image" style="color:#92400e"></i> JPEG</div>
+                                        </div>
+                                    </div><button class="fs-btn" onclick="openFS('fy','FY Distribution')"><i
+                                            class="fas fa-expand"></i></button>
+                                </div>
+                            </div>
+                            <div class="cw h200"><canvas id="ca-fy"></canvas></div>
+                            <div class="chart-hint">Click for FY detail</div>
+                        </div>
+                        <div class="cc">
+                            <div class="cc-h">
+                                <div class="cc-hl"><i class="fas fa-layer-group"></i> Grade-wise</div>
+                                <div style="display:flex;gap:6px;align-items:center">
+                                    <div class="chart-export-wrap"><button class="chart-exp-btn"
+                                            onclick="toggleChartExportMenu(event,'chart-exp-grade')"><i
+                                                class="fas fa-download"></i></button>
+                                        <div class="chart-export-menu" id="chart-exp-grade">
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChartExcel('grade','Grade-wise')"><i
+                                                    class="fas fa-file-excel" style="color:#065f46"></i> Excel</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('pdf','ca-grade','Grade-wise')"><i
+                                                    class="fas fa-file-pdf" style="color:#991b1b"></i> PDF</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('png','ca-grade','Grade-wise')"><i
+                                                    class="fas fa-image" style="color:#1e3a8a"></i> PNG</div>
+                                            <div class="chart-exp-item"
+                                                onclick="exportInlineChart('jpeg','ca-grade','Grade-wise')"><i
+                                                    class="fas fa-image" style="color:#92400e"></i> JPEG</div>
+                                        </div>
+                                    </div><button class="fs-btn" onclick="openFS('grade','Grade-wise')"><i
+                                            class="fas fa-expand"></i></button>
+                                </div>
+                            </div>
+                            <div class="cw h200"><canvas id="ca-grade"></canvas></div>
+                            <div class="chart-hint">Click for grade detail</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== REPORT ===== -->
+            <div class="pg" id="pg-report">
+                <div class="rpt-ph" id="rpt-ph"><i class="fas fa-file-chart-column"></i><span>Upload an Excel file to
+                        generate the report</span></div>
+                <div id="rpt-body" style="display:none">
+                    <div class="rpt-header">
+                        <div class="rpt-title-area">
+                            <h1><i class="fas fa-file-chart-column"></i> NMDC · HR Retirement Intelligence Report</h1>
+                            <p>As on <span id="rpt-date"></span> &nbsp;·&nbsp; <span id="rpt-total-count">0</span>
+                                employees &nbsp;·&nbsp; <span id="rpt-filter-summary">No filters</span></p>
+                        </div>
+                        <div class="rpt-actions"><button class="rpt-exp-btn rpt-exp-pdf" onclick="exportReportPDF()"><i
+                                    class="fas fa-file-pdf"></i> PDF</button><button class="rpt-exp-btn rpt-exp-xlsx"
+                                onclick="exportReportXLSX()"><i class="fas fa-file-excel"></i> Excel</button><button
+                                class="rpt-exp-btn rpt-exp-full" onclick="exportFullReport()"><i
+                                    class="fas fa-download"></i> Full Export</button></div>
+                    </div>
+                    <!-- Global Filter Bar — mirrors employee section filters -->
+                    <div class="gf-bar" id="gfb-report">
+                        <div class="gf-head" onclick="toggleGF('report')">
+                            <div class="gf-hl"><i class="fas fa-sliders"></i> Global Filters <span
+                                    style="font-size:10px;font-weight:400;color:var(--tx3);margin-left:4px">(applies to
+                                    all sections)</span></div>
+                            <i class="fas fa-chevron-down" id="gf-icon-report"
+                                style="font-size:11px;color:var(--tx3)"></i>
+                        </div>
+                        <div id="gf-body-report" style="display:none">
+                            <div class="gf-body">
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Deposit</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-dep-report')"
+                                            id="gf-dep-report-trigger">All Deposits</div>
+                                        <div class="ms-panel" id="gf-dep-report"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-dep-report-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-dep-report')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-dep-report')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Department</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-dept-report')"
+                                            id="gf-dept-report-trigger">All</div>
+                                        <div class="ms-panel" id="gf-dept-report"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-dept-report-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-dept-report')">All</button><button
+                                                    class="ms-act-btn"
+                                                    onclick="clearMS('gf-dept-report')">Clear</button></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Sub-Dept</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-sub-report')"
+                                            id="gf-sub-report-trigger">All</div>
+                                        <div class="ms-panel" id="gf-sub-report"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-sub-report-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-sub-report')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-sub-report')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Skill</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-skill-report')"
+                                            id="gf-skill-report-trigger">All</div>
+                                        <div class="ms-panel" id="gf-skill-report"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-skill-report-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-skill-report')">All</button><button
+                                                    class="ms-act-btn"
+                                                    onclick="clearMS('gf-skill-report')">Clear</button></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Grade</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-grade-report')"
+                                            id="gf-grade-report-trigger">All</div>
+                                        <div class="ms-panel" id="gf-grade-report"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-grade-report-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-grade-report')">All</button><button
+                                                    class="ms-act-btn"
+                                                    onclick="clearMS('gf-grade-report')">Clear</button></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Designation</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-desig-report')"
+                                            id="gf-desig-report-trigger">All</div>
+                                        <div class="ms-panel" id="gf-desig-report"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-desig-report-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-desig-report')">All</button><button
+                                                    class="ms-act-btn"
+                                                    onclick="clearMS('gf-desig-report')">Clear</button></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Status</div><select class="fsel"
+                                        style="width:100%" id="gf-status-report"
+                                        onchange="applyGFFrom('report')">
+                                        <option value="">All</option>
+                                        <option value="active">Active</option>
+                                        <option value="retired">Retired</option>
+                                        <option value="soon">Retiring Soon</option>
+                                        <option value="year">Retiring This Year</option>
+                                    </select>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Ret. Year</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-ry-report')"
+                                            id="gf-ry-report-trigger">All Years</div>
+                                        <div class="ms-panel" id="gf-ry-report"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-ry-report-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-ry-report')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-ry-report')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">Ret. Fin. Year</div>
+                                    <div class="ms-wrap">
+                                        <div class="ms-trigger" onclick="toggleMS('gf-rfy-report')"
+                                            id="gf-rfy-report-trigger">All FY</div>
+                                        <div class="ms-panel" id="gf-rfy-report"><input class="ms-search"
+                                                placeholder="Search…" oninput="filterMSOpts(this)">
+                                            <div class="ms-opts" id="gf-rfy-report-opts"></div>
+                                            <div class="ms-actions"><button class="ms-act-btn"
+                                                    onclick="selectAllMS('gf-rfy-report')">All</button><button
+                                                    class="ms-act-btn" onclick="clearMS('gf-rfy-report')">Clear</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">From Date</div><input type="date" class="gf-date"
+                                        id="gf-from-report" onchange="applyGFFrom('report')">
+                                </div>
+                                <div class="gf-fg">
+                                    <div class="gf-lbl">To Date</div><input type="date" class="gf-date"
+                                        id="gf-to-report" onchange="applyGFFrom('report')">
+                                </div>
+                            </div>
+                            <div class="gf-actions-row"><button class="gf-act-btn" onclick="clearAllGF()"><i
+                                        class="fas fa-rotate-left"></i> Clear All</button><button class="gf-act-btn pri"
+                                    onclick="applyGFFrom('report')"><i class="fas fa-check"></i> Apply</button></div>
+                        </div>
+                    </div>
+                    <!-- Active filter chips shown here for reference — no separate filter UI -->
+                    <div class="rpt-chips" id="rpt-chips"></div>
+                    <div class="rpt-kpi-section">
+                        <div class="rpt-kpi-stitle"><i class="fas fa-users" style="color:var(--ind)"></i> Workforce
+                            Overview</div>
+                        <div class="rpt-kpi-grid" id="rpt-kpi-workforce"></div>
+                    </div>
+                    <div class="std-block">
+                        <div class="std-block-hdr"><i class="fas fa-clock"></i> Retirement Timeline Analytics — Click
+                            any card for full details</div>
+                        <div class="std-block-grid" id="std-ret-block"></div>
+                    </div>
+                    <div class="std-block">
+                        <div class="std-block-hdr"><i class="fas fa-user-clock"></i> Average Age Projections — As of
+                            today and future states</div>
+                        <div class="age-metrics-row" id="age-metrics-row"></div>
+                    </div>
+                    <div class="narrative-box">
+                        <div class="narrative-title"><i class="fas fa-lightbulb"></i> Key Insights</div>
+                        <div id="narrative-items"></div>
+                    </div>
+                    <div class="rpt-section s-blue">
+                        <div class="rpt-section-hdr"><span class="sec-num">1</span><span class="sec-label">SKILL-WISE
+                                RETIREMENT SUMMARY</span><i class="fas fa-wrench" style="opacity:.7"></i><button
+                                class="sec-expand" onclick="exportSectionXLSX('skill')"><i
+                                    class="fas fa-file-excel"></i> Export</button></div>
+                        <div class="rpt-sel-bar" id="rsb-skill"><label class="rpt-sel-all-lbl"><input type="checkbox"
+                                    id="rsa-skill" onchange="toggleRptSectionAll('skill',this)"> Select All</label><span
+                                class="rpt-sel-count" id="rsc-skill">0 selected</span><button class="rpt-sel-exp-btn"
+                                onclick="exportRptSelection('skill')" style="display:none" id="rse-skill"><i
+                                    class="fas fa-file-excel"></i> Export Selected</button></div>
+                        <div class="rpt-table-wrap">
+                            <table class="rpt-table">
+                                <thead>
+                                    <tr>
+                                        <th class="cb-col"><input type="checkbox" id="rsa-skill-h"
+                                                onchange="toggleRptSectionAll('skill',this)"></th>
+                                        <th>Skill / Trade</th>
+                                        <th class="num">Total</th>
+                                        <th class="num">1Y</th>
+                                        <th class="num">5Y</th>
+                                        <th class="num">10Y</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rs-skill-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="rpt-section s-emerald">
+                        <div class="rpt-section-hdr"><span class="sec-num">2</span><span
+                                class="sec-label">DEPARTMENT-WISE RETIREMENT SUMMARY</span><i class="fas fa-building"
+                                style="opacity:.7"></i><button class="sec-expand" onclick="exportSectionXLSX('dept')"><i
+                                    class="fas fa-file-excel"></i> Export</button></div>
+                        <div class="rpt-sel-bar" id="rsb-dept"><label class="rpt-sel-all-lbl"><input type="checkbox"
+                                    id="rsa-dept" onchange="toggleRptSectionAll('dept',this)"> Select All</label><span
+                                class="rpt-sel-count" id="rsc-dept">0 selected</span><button class="rpt-sel-exp-btn"
+                                onclick="exportRptSelection('dept')" style="display:none" id="rse-dept"><i
+                                    class="fas fa-file-excel"></i> Export Selected</button></div>
+                        <div class="rpt-table-wrap">
+                            <table class="rpt-table">
+                                <thead>
+                                    <tr>
+                                        <th class="cb-col"><input type="checkbox" id="rsa-dept-h"
+                                                onchange="toggleRptSectionAll('dept',this)"></th>
+                                        <th>Deposit</th>
+                                        <th>Category</th>
+                                        <th>Department</th>
+                                        <th>Sub-Dept</th>
+                                        <th class="num">Total</th>
+                                        <th class="num">1Y</th>
+                                        <th class="num">5Y</th>
+                                        <th class="num">10Y</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rs-dept-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="rpt-section s-red">
+                        <div class="rpt-section-hdr"><span class="sec-num">3</span><span class="sec-label">DEPOSIT-WISE
+                                RETIREMENT SUMMARY</span><i class="fas fa-map-marker-alt" style="opacity:.7"></i><button
+                                class="sec-expand" onclick="exportSectionXLSX('deposit')"><i
+                                    class="fas fa-file-excel"></i> Export</button></div>
+                        <div class="rpt-sel-bar" id="rsb-deposit"><label class="rpt-sel-all-lbl"><input type="checkbox"
+                                    id="rsa-deposit" onchange="toggleRptSectionAll('deposit',this)"> Select
+                                All</label><span class="rpt-sel-count" id="rsc-deposit">0 selected</span><button
+                                class="rpt-sel-exp-btn" onclick="exportRptSelection('deposit')" style="display:none"
+                                id="rse-deposit"><i class="fas fa-file-excel"></i> Export Selected</button></div>
+                        <div class="rpt-table-wrap">
+                            <table class="rpt-table">
+                                <thead>
+                                    <tr>
+                                        <th class="cb-col"><input type="checkbox" id="rsa-deposit-h"
+                                                onchange="toggleRptSectionAll('deposit',this)"></th>
+                                        <th>Deposit</th>
+                                        <th class="num">Total</th>
+                                        <th class="num">1Y</th>
+                                        <th class="num">5Y</th>
+                                        <th class="num">10Y</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rs-deposit-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="rpt-section s-amber">
+                        <div class="rpt-section-hdr"><span class="sec-num">4</span><span class="sec-label">GRADE-WISE
+                                RETIREMENT SUMMARY</span><i class="fas fa-layer-group" style="opacity:.7"></i><button
+                                class="sec-expand" onclick="exportSectionXLSX('grade')"><i
+                                    class="fas fa-file-excel"></i> Export</button></div>
+                        <div class="rpt-sel-bar" id="rsb-grade"><label class="rpt-sel-all-lbl"><input type="checkbox"
+                                    id="rsa-grade" onchange="toggleRptSectionAll('grade',this)"> Select All</label><span
+                                class="rpt-sel-count" id="rsc-grade">0 selected</span><button class="rpt-sel-exp-btn"
+                                onclick="exportRptSelection('grade')" style="display:none" id="rse-grade"><i
+                                    class="fas fa-file-excel"></i> Export Selected</button></div>
+                        <div class="rpt-table-wrap">
+                            <table class="rpt-table">
+                                <thead>
+                                    <tr>
+                                        <th class="cb-col"><input type="checkbox" id="rsa-grade-h"
+                                                onchange="toggleRptSectionAll('grade',this)"></th>
+                                        <th>Grade</th>
+                                        <th class="num">Total</th>
+                                        <th class="num">1Y</th>
+                                        <th class="num">5Y</th>
+                                        <th class="num">10Y</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rs-grade-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="rpt-section s-violet">
+                        <div class="rpt-section-hdr"><span class="sec-num">5</span><span
+                                class="sec-label">DESIGNATION-WISE RETIREMENT SUMMARY</span><i class="fas fa-id-badge"
+                                style="opacity:.7"></i><button class="sec-expand"
+                                onclick="exportSectionXLSX('desig')"><i class="fas fa-file-excel"></i> Export</button>
+                        </div>
+                        <div class="rpt-sel-bar" id="rsb-desig"><label class="rpt-sel-all-lbl"><input type="checkbox"
+                                    id="rsa-desig" onchange="toggleRptSectionAll('desig',this)"> Select All</label><span
+                                class="rpt-sel-count" id="rsc-desig">0 selected</span><button class="rpt-sel-exp-btn"
+                                onclick="exportRptSelection('desig')" style="display:none" id="rse-desig"><i
+                                    class="fas fa-file-excel"></i> Export Selected</button></div>
+                        <div class="rpt-table-wrap">
+                            <table class="rpt-table">
+                                <thead>
+                                    <tr>
+                                        <th class="cb-col"><input type="checkbox" id="rsa-desig-h"
+                                                onchange="toggleRptSectionAll('desig',this)"></th>
+                                        <th>Designation</th>
+                                        <th class="num">Total</th>
+                                        <th class="num">10Y Retirements</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rs-desig-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="rpt-section s-teal">
+                        <div class="rpt-section-hdr"><span class="sec-num">6</span><span class="sec-label">RETIREMENT
+                                TIMELINE</span><i class="fas fa-clock" style="opacity:.7"></i></div>
+                        <div class="rpt-table-wrap">
+                            <table class="rpt-table">
+                                <thead>
+                                    <tr>
+                                        <th>Period</th>
+                                        <th class="num">Count</th>
+                                        <th class="num">% Workforce</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rs-timeline-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="rpt-section s-cyan">
+                        <div class="rpt-section-hdr"><span class="sec-num">7</span><span class="sec-label">FINANCIAL
+                                YEAR RETIREMENT FORECAST</span><i class="fas fa-calendar-days"
+                                style="opacity:.7"></i><button class="sec-expand" onclick="exportSectionXLSX('fy')"><i
+                                    class="fas fa-file-excel"></i> Export</button></div>
+                        <div class="rpt-sel-bar" id="rsb-fy"><label class="rpt-sel-all-lbl"><input type="checkbox"
+                                    id="rsa-fy" onchange="toggleRptSectionAll('fy',this)"> Select All</label><span
+                                class="rpt-sel-count" id="rsc-fy">0 selected</span><button class="rpt-sel-exp-btn"
+                                onclick="exportRptSelection('fy')" style="display:none" id="rse-fy"><i
+                                    class="fas fa-file-excel"></i> Export Selected</button></div>
+                        <div class="rpt-table-wrap">
+                            <table class="rpt-table">
+                                <thead>
+                                    <tr>
+                                        <th class="cb-col"><input type="checkbox" id="rsa-fy-h"
+                                                onchange="toggleRptSectionAll('fy',this)"></th>
+                                        <th>Financial Year</th>
+                                        <th class="num">Retirements</th>
+                                        <th class="num">Cumulative</th>
+                                        <th class="num">% Workforce</th>
+                                        <th>Trend</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rs-fy-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="rpt-section s-indigo">
+                        <div class="rpt-section-hdr"><span class="sec-num">8</span><span class="sec-label">AGE BAND
+                                DISTRIBUTION &amp; ANALYSIS</span><i class="fas fa-user-clock" style="opacity:.7"></i>
+                        </div>
+                        <div class="rpt-table-wrap">
+                            <table class="rpt-table">
+                                <thead>
+                                    <tr>
+                                        <th>Age Band</th>
+                                        <th class="num">Employees</th>
+                                        <th class="num">% Share</th>
+                                        <th class="num">Retiring 10Y</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rs-age-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="rpt-section s-pink">
+                        <div class="rpt-section-hdr"><span class="sec-num">9</span><span class="sec-label">SKILL GAP
+                                &amp; SUCCESSION RISK</span><i class="fas fa-puzzle-piece"
+                                style="opacity:.7"></i><button class="sec-expand"
+                                onclick="exportSectionXLSX('skillgap')"><i class="fas fa-file-excel"></i>
+                                Export</button></div>
+                        <div class="rpt-sel-bar" id="rsb-skillgap"><label class="rpt-sel-all-lbl"><input type="checkbox"
+                                    id="rsa-skillgap" onchange="toggleRptSectionAll('skillgap',this)"> Select
+                                All</label><span class="rpt-sel-count" id="rsc-skillgap">0 selected</span><button
+                                class="rpt-sel-exp-btn" onclick="exportRptSelection('skillgap')" style="display:none"
+                                id="rse-skillgap"><i class="fas fa-file-excel"></i> Export Selected</button></div>
+                        <div class="rpt-table-wrap">
+                            <table class="rpt-table">
+                                <thead>
+                                    <tr>
+                                        <th class="cb-col"><input type="checkbox" id="rsa-skillgap-h"
+                                                onchange="toggleRptSectionAll('skillgap',this)"></th>
+                                        <th>Skill</th>
+                                        <th class="num">Headcount</th>
+                                        <th class="num">5Y Loss</th>
+                                        <th class="num">10Y Loss</th>
+                                        <th class="num">Impact %</th>
+                                        <th>Risk</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rs-skillgap-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="rpt-section s-rose">
+                        <div class="rpt-section-hdr"><span class="sec-num">10</span><span class="sec-label">POTENTIAL
+                                RISK AREAS</span><i class="fas fa-triangle-exclamation" style="opacity:.7"></i></div>
+                        <div class="rpt-table-wrap">
+                            <table class="rpt-table">
+                                <thead>
+                                    <tr>
+                                        <th>Area</th>
+                                        <th class="num">10Y Count</th>
+                                        <th class="num">Impact %</th>
+                                        <th>Risk Level</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rs-risk-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="rpt-section s-orange">
+                        <div class="rpt-section-hdr"><span class="sec-num">11</span><span class="sec-label">POTENTIAL
+                                MANPOWER SHORTFALL</span><i class="fas fa-user-minus" style="opacity:.7"></i><button
+                                class="sec-expand" onclick="exportSectionXLSX('shortfall')"><i
+                                    class="fas fa-file-excel"></i> Export</button></div>
+                        <div class="rpt-sel-bar" id="rsb-shortfall"><label class="rpt-sel-all-lbl"><input
+                                    type="checkbox" id="rsa-shortfall" onchange="toggleRptSectionAll('shortfall',this)">
+                                Select All</label><span class="rpt-sel-count" id="rsc-shortfall">0
+                                selected</span><button class="rpt-sel-exp-btn" onclick="exportRptSelection('shortfall')"
+                                style="display:none" id="rse-shortfall"><i class="fas fa-file-excel"></i> Export
+                                Selected</button></div>
+                        <div class="rpt-table-wrap">
+                            <table class="rpt-table">
+                                <thead>
+                                    <tr>
+                                        <th class="cb-col"><input type="checkbox" id="rsa-shortfall-h"
+                                                onchange="toggleRptSectionAll('shortfall',this)"></th>
+                                        <th>Department</th>
+                                        <th>Sub-Dept</th>
+                                        <th class="num">Strength</th>
+                                        <th class="num">10Y Retirements</th>
+                                        <th class="num">Impact %</th>
+                                        <th>Risk</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="rs-shortfall-body"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modals -->
+    <div class="ov" id="ov">
+        <div class="modal">
+            <div class="modal-hd">
+                <div class="modal-hd-ico"><i class="fas fa-table-columns"></i></div>
+                <h2>Map your columns</h2>
+            </div>
+            <p class="modal-sub">Match your Excel columns to the required fields. Only Date of Birth is required.</p>
+            <div class="mmap" id="mmap"></div>
+            <div class="mfoot"><button class="btn-sec" onclick="closeModal()">Cancel</button><button class="btn-pri"
+                    onclick="procMap()">Generate Report →</button></div>
+        </div>
+    </div>
+    <div class="drill-ov" id="drill-ov" onclick="closeDrillOv(event)">
+        <div class="drill-modal">
+            <div class="drill-hd"><span class="drill-title" id="drill-title">Details</span>
+                <div style="display:flex;align-items:center;gap:8px">
+                    <div class="fs-export-wrap">
+                        <button class="drill-exp-btn drill-exp-toggle" onclick="toggleDrillExportMenu(event)"><i
+                                class="fas fa-download"></i> Export <i class="fas fa-chevron-down"
+                                style="font-size:10px;margin-left:2px"></i></button>
+                        <div class="fs-export-menu" id="drill-export-menu">
+                            <div class="fs-exp-item" onclick="exportDrill('xlsx')"><i class="fas fa-file-excel"
+                                    style="color:#065f46"></i> Excel (.xlsx)</div>
+                            <div class="fs-exp-item" onclick="exportDrillChart('pdf')"><i class="fas fa-file-pdf"
+                                    style="color:#991b1b"></i> PDF</div>
+                            <div class="fs-exp-item" onclick="exportDrillChart('png')"><i class="fas fa-image"
+                                    style="color:#1e3a8a"></i> PNG (High Quality)</div>
+                            <div class="fs-exp-item" onclick="exportDrillChart('jpeg')"><i class="fas fa-image"
+                                    style="color:#92400e"></i> JPEG</div>
+                        </div>
+                    </div>
+                    <button class="drill-exp-btn" onclick="exportDrill('pdf')"><i class="fas fa-file-pdf"></i>
+                        PDF</button>
+                    <button class="drill-close" onclick="closeDrill()"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="drill-kpis" id="drill-kpis"></div>
+            <div class="drill-chart-panel" id="drill-chart-panel">
+                <div>
+                    <div class="drill-chart-title"><i class="fas fa-chart-column" style="color:var(--ind2)"></i> By
+                        Department</div>
+                    <div class="drill-chart-wrap"><canvas id="dc-dept"></canvas></div>
+                </div>
+                <div>
+                    <div class="drill-chart-title"><i class="fas fa-calendar-alt" style="color:var(--am2)"></i> By
+                        Financial Year</div>
+                    <div class="drill-chart-wrap"><canvas id="dc-fy"></canvas></div>
+                </div>
+            </div>
+            <!-- Drill selection toolbar -->
+            <div class="sel-toolbar" id="drill-sel-toolbar" style="display:none;margin:0 0 8px 0">
+                <div class="sel-toolbar-left">
+                    <i class="fas fa-check-square" style="color:var(--ind2)"></i>
+                    <span class="sel-count-lbl"><strong id="drill-sel-count">0</strong> selected</span>
+                    <button class="sel-act-btn" onclick="selectAllDrillVisible()"><i class="fas fa-check-double"></i>
+                        Select All</button>
+                    <button class="sel-act-btn danger" onclick="clearDrillSelection()"><i class="fas fa-times"></i>
+                        Clear</button>
+                </div>
+                <div class="sel-toolbar-right">
+                    <button class="sel-act-btn primary" onclick="exportDrillSelected('xlsx')"><i
+                            class="fas fa-file-excel"></i> Export Selected</button>
+                    <button class="sel-act-btn primary" onclick="exportDrillSelected('pdf')"><i
+                            class="fas fa-file-pdf"></i> Export PDF</button>
+                </div>
+            </div>
+            <div class="drill-tools"><button class="drill-exp-btn" onclick="exportDrill('xlsx')"><i
+                        class="fas fa-file-excel"></i> Excel</button><button class="drill-exp-btn"
+                    onclick="exportDrill('pdf')"><i class="fas fa-file-pdf"></i> PDF</button><span class="rc"
+                    id="drill-rc">—</span></div>
+            <div class="drill-body">
+                <div class="tw">
+                    <div class="ts">
+                        <table>
+                            <thead id="drill-thead"></thead>
+                            <tbody id="drill-tbody"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="emp-popup-ov" id="emp-popup-ov" onclick="closeEmpOv(event)">
+        <div class="emp-popup"><button class="ep-close"
+                onclick="document.getElementById('emp-popup-ov').style.display='none'"><i
+                    class="fas fa-times"></i></button>
+            <div class="ep-avatar" id="ep-avatar"></div>
+            <div class="ep-name" id="ep-name"></div>
+            <div class="ep-sub" id="ep-sub"></div>
+            <div class="ret-calc-box" id="ep-calc"></div>
+            <div class="ep-grid" id="ep-grid"></div>
+        </div>
+    </div>
+
+    <!-- Fullscreen Chart Modal — no filter bar, uses global filters -->
+    <div class="fs-ov" id="fs-ov" onclick="closeFSOv(event)">
+        <div class="fs-modal">
+            <div class="fs-header"><span class="fs-title" id="fs-title">Chart</span>
+                <div class="fs-hdr-actions">
+                    <div class="fs-export-wrap">
+                        <button class="drill-exp-btn fs-exp-toggle"
+                            style="background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.3)"
+                            onclick="toggleFSExportMenu(event)"><i class="fas fa-download"></i> Export <i
+                                class="fas fa-chevron-down" style="font-size:10px;margin-left:2px"></i></button>
+                        <div class="fs-export-menu" id="fs-export-menu">
+                            <div class="fs-exp-item" onclick="exportFSExcel()"><i class="fas fa-file-excel"
+                                    style="color:#065f46"></i> Excel (.xlsx)</div>
+                            <div class="fs-exp-item" onclick="exportFSChart('pdf')"><i class="fas fa-file-pdf"
+                                    style="color:#991b1b"></i> PDF</div>
+                            <div class="fs-exp-item" onclick="exportFSChart('png')"><i class="fas fa-image"
+                                    style="color:#1e3a8a"></i> PNG (High Quality)</div>
+                            <div class="fs-exp-item" onclick="exportFSChart('jpeg')"><i class="fas fa-image"
+                                    style="color:#92400e"></i> JPEG</div>
+                        </div>
+                    </div>
+                    <button class="fs-close" onclick="closeFS()"><i class="fas fa-times"></i></button>
+                </div>
+            </div>
+            <div class="fs-body">
+                <!-- Left Sidebar: Visual Selector -->
+                <div class="fs-nav-sidebar">
+                    <div class="fs-sidebar-section-title"><i class="fas fa-chart-pie"></i> Visual Insights</div>
+                    <div class="fs-nav-list">
+                        <button class="fs-nav-item" data-type="age-dist" onclick="openFS('age-dist','Age Band Distribution')">
+                            <i class="fas fa-chart-simple"></i> Age Band
+                        </button>
+                        <button class="fs-nav-item" data-type="dept" onclick="openFS('dept','Department-wise')">
+                            <i class="fas fa-chart-column"></i> Department
+                        </button>
+                        <button class="fs-nav-item" data-type="month" onclick="openFS('month','Monthly Retirement Volume')">
+                            <i class="fas fa-chart-bar"></i> Monthly Volume
+                        </button>
+                        <button class="fs-nav-item" data-type="desig" onclick="openFS('desig','Designation-wise')">
+                            <i class="fas fa-chart-pie"></i> Designation
+                        </button>
+                        <button class="fs-nav-item" data-type="skill" onclick="openFS('skill','Skill-wise Retirements')">
+                            <i class="fas fa-wrench"></i> Skill / Trade
+                        </button>
+                        <button class="fs-nav-item" data-type="grade" onclick="openFS('grade','Grade-wise')">
+                            <i class="fas fa-layer-group"></i> Grade
+                        </button>
+                        <button class="fs-nav-item" data-type="fy" onclick="openFS('fy','FY Distribution')">
+                            <i class="fas fa-calendar-days"></i> FY Forecast
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Middle Content Section -->
+                <div class="fs-left">
+                    <!-- Visual Quick Time Filters -->
+                    <div class="fs-quick-filters">
+                        <span class="fs-qf-label"><i class="fas fa-calendar-alt"></i> Visual Quick Filters:</span>
+                        <button class="fs-time-btn" id="fs-time-thisYear" onclick="setFSTimePeriod('thisYear')">This Year</button>
+                        <button class="fs-time-btn" id="fs-time-nextYear" onclick="setFSTimePeriod('nextYear')">Next Year</button>
+                        <button class="fs-time-btn" id="fs-time-next5y" onclick="setFSTimePeriod('next5y')">Next 5 Years</button>
+                        <button class="fs-time-btn danger" id="fs-time-clear" onclick="setFSTimePeriod('')" style="display:none">Clear</button>
+                    </div>
+                    <div class="fs-chart-wrap"><canvas id="ca-fs"></canvas></div>
+                    <div class="fs-table-wrap">
+                        <div class="tw">
+                            <div class="ts">
+                                <table>
+                                    <thead id="fs-thead"></thead>
+                                    <tbody id="fs-tbody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Sidebar Section: Filters + Count Summary + Insights -->
+                <div class="fs-right">
+                    <!-- Global Filters Copy -->
+                    <div class="fs-filters-sidebar">
+                        <div class="fs-sidebar-section-title"><i class="fas fa-sliders"></i> Global Filters</div>
+                        <div class="fs-filter-scroll">
+                            <!-- Deposit -->
+                            <div class="fs-filter-field">
+                                <div class="gf-lbl">Deposit</div>
+                                <div class="ms-wrap">
+                                    <div class="ms-trigger" onclick="toggleMS('gf-dep-fs')" id="gf-dep-fs-trigger">All Deposits</div>
+                                    <div class="ms-panel" id="gf-dep-fs">
+                                        <input class="ms-search" placeholder="Search…" oninput="filterMSOpts(this)">
+                                        <div class="ms-opts" id="gf-dep-fs-opts"></div>
+                                        <div class="ms-actions">
+                                            <button class="ms-act-btn" onclick="selectAllMS('gf-dep-fs')">All</button>
+                                            <button class="ms-act-btn" onclick="clearMS('gf-dep-fs')">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Department -->
+                            <div class="fs-filter-field">
+                                <div class="gf-lbl">Department</div>
+                                <div class="ms-wrap">
+                                    <div class="ms-trigger" onclick="toggleMS('gf-dept-fs')" id="gf-dept-fs-trigger">All</div>
+                                    <div class="ms-panel" id="gf-dept-fs">
+                                        <input class="ms-search" placeholder="Search…" oninput="filterMSOpts(this)">
+                                        <div class="ms-opts" id="gf-dept-fs-opts"></div>
+                                        <div class="ms-actions">
+                                            <button class="ms-act-btn" onclick="selectAllMS('gf-dept-fs')">All</button>
+                                            <button class="ms-act-btn" onclick="clearMS('gf-dept-fs')">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Sub-Dept -->
+                            <div class="fs-filter-field">
+                                <div class="gf-lbl">Sub-Dept</div>
+                                <div class="ms-wrap">
+                                    <div class="ms-trigger" onclick="toggleMS('gf-sub-fs')" id="gf-sub-fs-trigger">All</div>
+                                    <div class="ms-panel" id="gf-sub-fs">
+                                        <input class="ms-search" placeholder="Search…" oninput="filterMSOpts(this)">
+                                        <div class="ms-opts" id="gf-sub-fs-opts"></div>
+                                        <div class="ms-actions">
+                                            <button class="ms-act-btn" onclick="selectAllMS('gf-sub-fs')">All</button>
+                                            <button class="ms-act-btn" onclick="clearMS('gf-sub-fs')">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Skill -->
+                            <div class="fs-filter-field">
+                                <div class="gf-lbl">Skill</div>
+                                <div class="ms-wrap">
+                                    <div class="ms-trigger" onclick="toggleMS('gf-skill-fs')" id="gf-skill-fs-trigger">All</div>
+                                    <div class="ms-panel" id="gf-skill-fs">
+                                        <input class="ms-search" placeholder="Search…" oninput="filterMSOpts(this)">
+                                        <div class="ms-opts" id="gf-skill-fs-opts"></div>
+                                        <div class="ms-actions">
+                                            <button class="ms-act-btn" onclick="selectAllMS('gf-skill-fs')">All</button>
+                                            <button class="ms-act-btn" onclick="clearMS('gf-skill-fs')">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Grade -->
+                            <div class="fs-filter-field">
+                                <div class="gf-lbl">Grade</div>
+                                <div class="ms-wrap">
+                                    <div class="ms-trigger" onclick="toggleMS('gf-grade-fs')" id="gf-grade-fs-trigger">All</div>
+                                    <div class="ms-panel" id="gf-grade-fs">
+                                        <input class="ms-search" placeholder="Search…" oninput="filterMSOpts(this)">
+                                        <div class="ms-opts" id="gf-grade-fs-opts"></div>
+                                        <div class="ms-actions">
+                                            <button class="ms-act-btn" onclick="selectAllMS('gf-grade-fs')">All</button>
+                                            <button class="ms-act-btn" onclick="clearMS('gf-grade-fs')">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Designation -->
+                            <div class="fs-filter-field">
+                                <div class="gf-lbl">Designation</div>
+                                <div class="ms-wrap">
+                                    <div class="ms-trigger" onclick="toggleMS('gf-desig-fs')" id="gf-desig-fs-trigger">All</div>
+                                    <div class="ms-panel" id="gf-desig-fs">
+                                        <input class="ms-search" placeholder="Search…" oninput="filterMSOpts(this)">
+                                        <div class="ms-opts" id="gf-desig-fs-opts"></div>
+                                        <div class="ms-actions">
+                                            <button class="ms-act-btn" onclick="selectAllMS('gf-desig-fs')">All</button>
+                                            <button class="ms-act-btn" onclick="clearMS('gf-desig-fs')">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Status -->
+                            <div class="fs-filter-field">
+                                <div class="gf-lbl">Status</div>
+                                <select class="fsel" id="gf-status-fs" onchange="applyGF()">
+                                    <option value="">All</option>
+                                    <option value="active">Active</option>
+                                    <option value="retired">Retired</option>
+                                    <option value="soon">Retiring Soon</option>
+                                    <option value="year">Retiring This Year</option>
+                                </select>
+                            </div>
+                            <!-- Ret Year -->
+                            <div class="fs-filter-field">
+                                <div class="gf-lbl">Ret. Year</div>
+                                <div class="ms-wrap">
+                                    <div class="ms-trigger" onclick="toggleMS('gf-ry-fs')" id="gf-ry-fs-trigger">All Years</div>
+                                    <div class="ms-panel" id="gf-ry-fs">
+                                        <input class="ms-search" placeholder="Search…" oninput="filterMSOpts(this)">
+                                        <div class="ms-opts" id="gf-ry-fs-opts"></div>
+                                        <div class="ms-actions">
+                                            <button class="ms-act-btn" onclick="selectAllMS('gf-ry-fs')">All</button>
+                                            <button class="ms-act-btn" onclick="clearMS('gf-ry-fs')">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- Ret FY -->
+                            <div class="fs-filter-field">
+                                <div class="gf-lbl">Ret. Fin. Year</div>
+                                <div class="ms-wrap">
+                                    <div class="ms-trigger" onclick="toggleMS('gf-rfy-fs')" id="gf-rfy-fs-trigger">All FY</div>
+                                    <div class="ms-panel" id="gf-rfy-fs">
+                                        <input class="ms-search" placeholder="Search…" oninput="filterMSOpts(this)">
+                                        <div class="ms-opts" id="gf-rfy-fs-opts"></div>
+                                        <div class="ms-actions">
+                                            <button class="ms-act-btn" onclick="selectAllMS('gf-rfy-fs')">All</button>
+                                            <button class="ms-act-btn" onclick="clearMS('gf-rfy-fs')">Clear</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <!-- From Date -->
+                            <div class="fs-filter-field">
+                                <div class="gf-lbl">From Date</div>
+                                <input type="date" class="gf-date" id="gf-from-fs" onchange="applyGF()">
+                            </div>
+                            <!-- To Date -->
+                            <div class="fs-filter-field">
+                                <div class="gf-lbl">To Date</div>
+                                <input type="date" class="gf-date" id="gf-to-fs" onchange="applyGF()">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="fs-right-title" style="margin-top:10px"><i class="fas fa-chart-bar" style="color:var(--ind2)"></i> Count Summary</div>
+                    <div class="fs-stat-grid" id="fs-stats"></div>
+                    <div class="fs-right-title" style="margin-top:10px"><i class="fas fa-lightbulb" style="color:var(--am2)"></i> Key Insights</div>
+                    <div class="fs-insight" id="fs-insights"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="gexp-ov" id="gexp-ov" onclick="closeGexpOv(event)">
+        <div class="gexp-modal">
+            <div class="gexp-title"><i class="fas fa-download" style="color:var(--ind2);margin-right:8px"></i>Export
+                Dashboard</div>
+            <div class="gexp-sub">Choose what to export. All exports respect active filters.</div>
+            <div class="gexp-options">
+                <div class="gexp-opt" onclick="doGexp('view-xlsx')"><i class="fas fa-file-excel"
+                        style="color:#065f46"></i>
+                    <div class="gexp-opt-lbl">Current View Excel</div>
+                    <div class="gexp-opt-sub">Filtered employee list</div>
+                </div>
+                <div class="gexp-opt" onclick="doGexp('view-pdf')"><i class="fas fa-file-pdf" style="color:#991b1b"></i>
+                    <div class="gexp-opt-lbl">Current View PDF</div>
+                    <div class="gexp-opt-sub">Print-ready format</div>
+                </div>
+                <div class="gexp-opt" onclick="doGexp('report-xlsx')"><i class="fas fa-file-chart-column"
+                        style="color:#4c1d95"></i>
+                    <div class="gexp-opt-lbl">Full Report Excel</div>
+                    <div class="gexp-opt-sub">All analysis sheets</div>
+                </div>
+                <div class="gexp-opt" onclick="doGexp('report-pdf')"><i class="fas fa-print" style="color:#1e3a8a"></i>
+                    <div class="gexp-opt-lbl">Full Report PDF</div>
+                    <div class="gexp-opt-sub">Complete report print</div>
+                </div>
+                <div class="gexp-opt" onclick="doGexp('all-xlsx')"><i class="fas fa-table" style="color:#0c4a6e"></i>
+                    <div class="gexp-opt-lbl">All Employees Excel</div>
+                    <div class="gexp-opt-sub">Complete raw data</div>
+                </div>
+                <div class="gexp-opt" onclick="doGexp('close')"><i class="fas fa-times-circle"
+                        style="color:var(--tx3)"></i>
+                    <div class="gexp-opt-lbl">Cancel</div>
+                    <div class="gexp-opt-sub">Close this dialog</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="toast" id="toast"><i class="fas fa-check-circle"></i><span id="toast-msg">Done</span></div>
+    <div class="loading-ov" id="loading-ov">
+        <div class="loading-spinner"></div>
+        <div class="loading-text" id="loading-text">Processing…</div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
