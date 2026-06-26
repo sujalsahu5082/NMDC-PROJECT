@@ -25,6 +25,7 @@ The **NMDC HR Analytics Dashboard** is a full-stack web application built for **
 - 📊 **Employee Grade & Department Summary** — Excel-based reporting (`Employee_Grade_Dept_Summary.xlsx`)
 - 🗂️ **Frontend Dashboard** — Intuitive UI built with HTML, CSS, and JavaScript
 - ⚙️ **Python Backend** — REST API / server-side logic
+- 🤖 **AI Chatbot** — Integrated an AI-powered chatbot via Groq LLaMA 3.3 REST API to deliver instant natural-language workforce insights
 - 🚀 **One-click Startup** — Launch entire stack with `start-all.bat`
 
 ---
@@ -82,7 +83,7 @@ start-all.bat        # Windows
 | Layer     | Technology          |
 |-----------|---------------------|
 | Frontend  | HTML5, CSS3, JavaScript |
-| Backend   | Python              |
+| Backend   | Python, Groq LLaMA 3.3 API |
 | Data      | Microsoft Excel (.xlsx) |
 | Launcher  | Windows Batch Script |
 

@@ -4160,7 +4160,7 @@
     }
 
     /* Input area */
-    #chat-input-area {
+    #chat-form {
       padding: 10px 12px;
       border-top: 1px solid var(--border);
       display: flex;
@@ -4168,6 +4168,7 @@
       align-items: center;
       background: var(--bg2);
       flex-shrink: 0;
+      margin: 0;
     }
 
     #chat-input {
@@ -8602,13 +8603,16 @@
       <button class="chat-chip" data-query="What is the retirement report?">🏖️ Retirement</button>
     </div>
 
-    <!-- Input bar -->
-    <div id="chat-input-area">
-      <input type="text" id="chat-input" placeholder="Ask about the active dashboard data…" autocomplete="off" aria-label="Chat input">
-      <button id="chat-send" title="Send" aria-label="Send message">
+    <!-- Input bar - wrapped in form for native Enter key support -->
+    <form id="chat-form" style="display:flex;gap:8px;align-items:center;padding:10px 12px;border-top:1px solid var(--border);background:var(--bg2);flex-shrink:0;">
+      <input type="text" id="chat-input"
+        placeholder="Ask about the active dashboard data…"
+        autocomplete="off"
+        aria-label="Chat input">
+      <button id="chat-send" type="submit" title="Send" aria-label="Send message">
         <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
       </button>
-    </div>
+    </form>
   </div>
 
   <!-- ── FLOATING CHATBOT CONTROLLER LOGIC ── -->
@@ -8625,6 +8629,7 @@
       const resizeSE    = document.getElementById('chat-resize-handle-br');
       const chatInput   = document.getElementById('chat-input');
       const sendBtn     = document.getElementById('chat-send');
+      const chatForm    = document.getElementById('chat-form');
       const messagesContainer = document.getElementById('chat-messages');
       const suggestionChips   = document.querySelectorAll('#chat-suggestions .chat-chip');
 
@@ -8809,28 +8814,23 @@
         });
       });
 
-      // ── ENTER KEY + SEND BUTTON ──
+      // ── CHAT SUBMISSION (ENTER KEY + SEND BUTTON) ──
+      // The form submit event fires when pressing Enter in chatInput or clicking chat-send
+      chatForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const query = chatInput.value.trim();
+        if (query) submitMessage(query);
+      });
+
+      // Expose submitMessage globally just in case
+      window.__chatSubmit = submitMessage;
+
       // Focus launcher and press Enter or Space to open/close
       launcher.addEventListener('keydown', (e) => {
         if (e.key === 'Enter' || e.key === ' ' || e.keyCode === 13 || e.keyCode === 32) {
           e.preventDefault();
           launcher.click();
         }
-      });
-
-      // Press Enter in chatInput to submit prompt immediately
-      chatInput.addEventListener('keydown', (e) => {
-        if ((e.key === 'Enter' || e.keyCode === 13) && !e.shiftKey) {
-          e.preventDefault();
-          e.stopPropagation();
-          const query = chatInput.value.trim();
-          if (query) submitMessage(query);
-        }
-      });
-
-      sendBtn.addEventListener('click', () => {
-        const query = chatInput.value.trim();
-        if (query) submitMessage(query);
       });
 
       // Core submit logic
